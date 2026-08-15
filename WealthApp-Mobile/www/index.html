@@ -425,15 +425,64 @@
 
       <div class="flex items-center gap-2">
 
-        <select
+                <select
           id="currencySelect"
-          class="bg-white/20 text-white text-xs rounded-lg px-2 py-1.5 border-0 outline-none"
+          class="bg-white/20 text-white text-xs rounded-lg px-2 py-1.5 border-0 outline-none max-w-[130px]"
         >
-          <option value="USD">USD $</option>
-          <option value="INR">INR ₹</option>
-          <option value="EUR">EUR €</option>
-          <option value="AED">AED</option>
-          <option value="GBP">GBP £</option>
+          <option value="USD">🇺🇸 USD $</option>
+          <option value="INR">🇮🇳 INR ₹</option>
+          <option value="EUR">🇪🇺 EUR €</option>
+          <option value="GBP">🇬🇧 GBP £</option>
+          <option value="AED">🇦🇪 AED د.إ</option>
+          <option value="SAR">🇸🇦 SAR ﷼</option>
+          <option value="QAR">🇶🇦 QAR ﷼</option>
+          <option value="KWD">🇰🇼 KWD د.ك</option>
+          <option value="BHD">🇧🇭 BHD BD</option>
+          <option value="OMR">🇴🇲 OMR ر.ع.</option>
+          <option value="JPY">🇯🇵 JPY ¥</option>
+          <option value="CNY">🇨🇳 CNY ¥</option>
+          <option value="HKD">🇭🇰 HKD HK$</option>
+          <option value="SGD">🇸🇬 SGD S$</option>
+          <option value="AUD">🇦🇺 AUD A$</option>
+          <option value="NZD">🇳🇿 NZD NZ$</option>
+          <option value="KRW">🇰🇷 KRW ₩</option>
+          <option value="THB">🇹🇭 THB ฿</option>
+          <option value="MYR">🇲🇾 MYR RM</option>
+          <option value="IDR">🇮🇩 IDR Rp</option>
+          <option value="PHP">🇵🇭 PHP ₱</option>
+          <option value="VND">🇻🇳 VND ₫</option>
+          <option value="PKR">🇵🇰 PKR ₨</option>
+          <option value="BDT">🇧🇩 BDT ৳</option>
+          <option value="LKR">🇱🇰 LKR Rs</option>
+          <option value="NPR">🇳🇵 NPR रू</option>
+          <option value="CHF">🇨🇭 CHF Fr</option>
+          <option value="SEK">🇸🇪 SEK kr</option>
+          <option value="NOK">🇳🇴 NOK kr</option>
+          <option value="DKK">🇩🇰 DKK kr</option>
+          <option value="PLN">🇵🇱 PLN zł</option>
+          <option value="CZK">🇨🇿 CZK Kč</option>
+          <option value="HUF">🇭🇺 HUF Ft</option>
+          <option value="RON">🇷🇴 RON lei</option>
+          <option value="TRY">🇹🇷 TRY ₺</option>
+          <option value="RUB">🇷🇺 RUB ₽</option>
+          <option value="CAD">🇨🇦 CAD C$</option>
+          <option value="BRL">🇧🇷 BRL R$</option>
+          <option value="MXN">🇲🇽 MXN Mex$</option>
+          <option value="ARS">🇦🇷 ARS $</option>
+          <option value="CLP">🇨🇱 CLP $</option>
+          <option value="COP">🇨🇴 COP $</option>
+          <option value="PEN">🇵🇪 PEN S/</option>
+          <option value="ZAR">🇿🇦 ZAR R</option>
+          <option value="EGP">🇪🇬 EGP E£</option>
+          <option value="NGN">🇳🇬 NGN ₦</option>
+          <option value="KES">🇰🇪 KES KSh</option>
+          <option value="GHS">🇬🇭 GHS GH₵</option>
+          <option value="MAD">🇲🇦 MAD د.م.</option>
+          <option value="TZS">🇹🇿 TZS TSh</option>
+          <option value="UGX">🇺🇬 UGX USh</option>
+          <option value="ILS">🇮🇱 ILS ₪</option>
+          <option value="TWD">🇹🇼 TWD NT$</option>
+          <option value="IRR">🇮🇷 IRR ﷼</option>
         </select>
 
         <button
@@ -866,32 +915,71 @@ let regMode = 'email';
 /* ---------------- RATES ---------------- */
 
 const RATES = {
+  // Major
+  INR: { symbol: '₹',   rate: 1 },
+  USD: { symbol: '$',   rate: 0.012 },
+  EUR: { symbol: '€',   rate: 0.011 },
+  GBP: { symbol: '£',   rate: 0.0095 },
+  AED: { symbol: 'د.إ', rate: 0.044 },
+  SAR: { symbol: '﷼',   rate: 0.045 },
+  QAR: { symbol: '﷼',   rate: 0.0437 },
+  KWD: { symbol: 'د.ك', rate: 0.0037 },
+  BHD: { symbol: 'BD',  rate: 0.0045 },
+  OMR: { symbol: 'ر.ع.', rate: 0.0046 },
 
-  INR:{
-    symbol:'₹',
-    rate:1
-  },
+  // Asia Pacific
+  JPY: { symbol: '¥',   rate: 1.85 },
+  CNY: { symbol: '¥',   rate: 0.087 },
+  HKD: { symbol: 'HK$', rate: 0.094 },
+  SGD: { symbol: 'S$',  rate: 0.016 },
+  AUD: { symbol: 'A$',  rate: 0.018 },
+  NZD: { symbol: 'NZ$', rate: 0.020 },
+  KRW: { symbol: '₩',   rate: 16.5 },
+  THB: { symbol: '฿',   rate: 0.44 },
+  MYR: { symbol: 'RM',  rate: 0.056 },
+  IDR: { symbol: 'Rp',  rate: 195 },
+  PHP: { symbol: '₱',   rate: 0.70 },
+  VND: { symbol: '₫',   rate: 300 },
+  PKR: { symbol: '₨',   rate: 3.35 },
+  BDT: { symbol: '৳',   rate: 1.40 },
+  LKR: { symbol: 'Rs',  rate: 3.60 },
+  NPR: { symbol: 'रू',  rate: 1.60 },
 
-  USD:{
-    symbol:'$',
-    rate:0.012
-  },
+  // Europe
+  CHF: { symbol: 'Fr',  rate: 0.0105 },
+  SEK: { symbol: 'kr',  rate: 0.13 },
+  NOK: { symbol: 'kr',  rate: 0.13 },
+  DKK: { symbol: 'kr',  rate: 0.082 },
+  PLN: { symbol: 'zł',  rate: 0.048 },
+  CZK: { symbol: 'Kč',  rate: 0.28 },
+  HUF: { symbol: 'Ft',  rate: 4.40 },
+  RON: { symbol: 'lei', rate: 0.055 },
+  TRY: { symbol: '₺',   rate: 0.41 },
+  RUB: { symbol: '₽',   rate: 1.10 },
 
-  EUR:{
-    symbol:'€',
-    rate:0.011
-  },
+  // Americas
+  CAD: { symbol: 'C$',  rate: 0.0165 },
+  BRL: { symbol: 'R$',  rate: 0.068 },
+  MXN: { symbol: 'Mex$',rate: 0.23 },
+  ARS: { symbol: '$',   rate: 11.5 },
+  CLP: { symbol: '$',   rate: 11.2 },
+  COP: { symbol: '$',   rate: 50 },
+  PEN: { symbol: 'S/',  rate: 0.045 },
 
-  AED:{
-    symbol:'د.إ',
-    rate:0.044
-  },
+  // Africa & Others
+  ZAR: { symbol: 'R',   rate: 0.22 },
+  EGP: { symbol: 'E£',  rate: 0.58 },
+  NGN: { symbol: '₦',   rate: 18.5 },
+  KES: { symbol: 'KSh', rate: 1.55 },
+  GHS: { symbol: 'GH₵', rate: 0.18 },
+  MAD: { symbol: 'د.م.', rate: 0.12 },
+  TZS: { symbol: 'TSh', rate: 31 },
+  UGX: { symbol: 'USh', rate: 44 },
 
-  GBP:{
-    symbol:'£',
-    rate:0.0095
-  }
-
+  // Others
+  ILS: { symbol: '₪',   rate: 0.044 },
+  TWD: { symbol: 'NT$', rate: 0.39 },
+  IRR: { symbol: '﷼',   rate: 505 }
 };
 
 
@@ -3288,10 +3376,15 @@ function renderDashboard(){
 
   const maxCatValue = Math.max(...cats.map(c => c.value), 1);
 
-  const barChartHtml = cats.map(c => {
+  // ===== BAR CHART HTML =====
+  const barChartHtml = cats.map((c, idx) => {
     const height = Math.max((c.value / maxCatValue) * 100, 5);
+    const pctVal = pct(c.value, totalAssets);
     return `
-      <div class="bar-group">
+      <div class="bar-group" id="bar-${idx}"
+           style="cursor:pointer; transition: all 0.25s ease"
+           onclick="highlightCategory(${idx})"
+           ontouchend="event.preventDefault(); highlightCategory(${idx})">
         <div class="bar" style="height:${height}%;background:${esc(c.color)}">
           <span class="bar-value">${conv(c.value)}</span>
         </div>
@@ -3300,20 +3393,7 @@ function renderDashboard(){
     `;
   }).join('');
 
-  let donutStops = '';
-  let cumulative = 0;
-  if (totalAssets > 0) {
-    const stops = [];
-    cats.forEach(c => {
-      const start = cumulative;
-      cumulative += (c.value / totalAssets) * 100;
-      stops.push(`${esc(c.color)} ${start.toFixed(2)}% ${cumulative.toFixed(2)}%`);
-    });
-    donutStops = stops.join(', ');
-  } else {
-    donutStops = '#e5eaf1 0% 100%';
-  }
-
+  // ===== TABLE ROWS =====
   const tableRows = DATA.assets.map(a => {
     const cat = DATA.categories.find(c => c.id === a.cat);
     return `
@@ -3349,6 +3429,7 @@ function renderDashboard(){
         <p>Track your net worth, investments, property and financial goals.</p>
       </div>
 
+      <!-- Top metric cards -->
       <div class="cards">
         <div class="card">
           <div class="metric-label">Total Net Worth</div>
@@ -3372,45 +3453,49 @@ function renderDashboard(){
         </div>
       </div>
 
-      <div class="dashboard-grid">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Category Breakdown</div>
-            <button class="card-action" onclick="render('wealth')">Manage</button>
-          </div>
-          <div class="chart">
-            ${barChartHtml || '<p class="text-sm text-slate-400 w-full text-center">No asset data</p>'}
-          </div>
+      <!-- ===== MAIN CHART SECTION (Monefy-style focus) ===== -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-title">Asset Allocation</div>
+          <button class="card-action" onclick="render('wealth')">Manage</button>
         </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Asset Allocation</div>
-          </div>
-          <div class="allocation-layout">
-            <div class="donut" style="background: conic-gradient(${donutStops})">
-              <div class="donut-inner">
-                <div>
-                  <strong>${cats.length}</strong>
-                  <span>Categories</span>
+        <!-- Big central doughnut -->
+        <div style="position:relative; height:260px; margin: 8px 0 16px;">
+          <canvas id="allocationChart"></canvas>
+        </div>
+
+        <!-- Legend (clickable) -->
+        <div class="legend" id="allocationLegend" style="margin-bottom:8px">
+          ${cats.map((c, idx) => {
+            const pctVal = pct(c.value, totalAssets);
+            return `
+              <div class="legend-row" id="legend-${idx}"
+                   style="cursor:pointer; padding:7px 4px; border-radius:8px; transition:background 0.2s"
+                   onclick="highlightCategory(${idx})"
+                   ontouchend="event.preventDefault(); highlightCategory(${idx})">
+                <div class="legend-left">
+                  <span class="legend-dot" style="background:${esc(c.color)}"></span>
+                  ${esc(c.name)}
                 </div>
+                <strong>${pctVal}%</strong>
               </div>
-            </div>
-            <div class="legend">
-              ${cats.map(c => `
-                <div class="legend-row">
-                  <div class="legend-left">
-                    <span class="legend-dot" style="background:${esc(c.color)}"></span>
-                    ${esc(c.name)}
-                  </div>
-                  <strong>${pct(c.value, totalAssets)}%</strong>
-                </div>
-              `).join('')}
-            </div>
-          </div>
+            `;
+          }).join('')}
         </div>
       </div>
 
+      <!-- Bar chart (linked) -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-title">Category Breakdown</div>
+        </div>
+        <div class="chart" id="barChartContainer">
+          ${barChartHtml || '<p class="text-sm text-slate-400 w-full text-center">No asset data</p>'}
+        </div>
+      </div>
+
+      <!-- Portfolio Table -->
       <div class="table-card">
         <div class="card-header" style="padding:20px 20px 0">
           <div class="card-title">Portfolio Summary</div>
@@ -3442,6 +3527,144 @@ function renderDashboard(){
   `;
 
   lucide.createIcons();
+
+  // ===== Create Chart.js Doughnut =====
+  if (cats.length > 0 && totalAssets > 0) {
+    const ctx = document.getElementById('allocationChart');
+    if (ctx) {
+      if (charts.allocation) {
+        try { charts.allocation.destroy(); } catch(e){}
+      }
+
+      charts.allocation = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: cats.map(c => c.name),
+          datasets: [{
+            data: cats.map(c => c.value),
+            backgroundColor: cats.map(c => c.color),
+            borderWidth: 3,
+            borderColor: document.documentElement.classList.contains('dark') ? '#033D37' : '#ffffff',
+            hoverOffset: 12
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            wealthLabels: false,
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              backgroundColor: 'rgba(7, 94, 84, 0.95)',
+              titleFont: { size: 13, weight: 'bold' },
+              bodyFont: { size: 13 },
+              padding: 12,
+              cornerRadius: 10,
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const percentage = pct(value, totalAssets);
+                  return label + ': ' + conv(value) + ' (' + percentage + '%)';
+                }
+              }
+            }
+          },
+          onClick: function(event, elements) {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              highlightCategory(index);
+            }
+          }
+        }
+      });
+    }
+  }
+
+  // Store cats globally for highlight function
+  window._dashCats = cats;
+  window._dashTotal = totalAssets;
+}
+
+/* =========================================================
+   HIGHLIGHT CATEGORY (links pie + bar charts)
+   ========================================================= */
+function highlightCategory(index) {
+  const cats = window._dashCats || [];
+  const total = window._dashTotal || 1;
+  if (!cats[index]) return;
+
+  const cat = cats[index];
+  const pctVal = pct(cat.value, total);
+
+  // 1. Show toast
+  showToast(cat.name + ': ' + conv(cat.value) + ' (' + pctVal + '%)');
+
+  // 2. Highlight the bars strongly
+  document.querySelectorAll('.bar-group').forEach((el, i) => {
+    if (i === index) {
+      el.style.transform = 'scale(1.12)';
+      el.style.opacity = '1';
+      el.style.filter = 'brightness(1.2)';
+      el.style.zIndex = '10';
+    } else {
+      el.style.transform = 'scale(0.88)';
+      el.style.opacity = '0.35';
+      el.style.filter = 'grayscale(0.4)';
+      el.style.zIndex = '1';
+    }
+  });
+
+  // 3. Highlight the legend row
+  document.querySelectorAll('.legend-row').forEach((el, i) => {
+    if (i === index) {
+      el.style.background = 'rgba(37, 211, 102, 0.18)';
+      el.style.fontWeight = '700';
+    } else {
+      el.style.background = 'transparent';
+      el.style.fontWeight = '';
+    }
+  });
+
+  // 4. Strongly highlight the pie segment
+  if (charts.allocation) {
+    const chart = charts.allocation;
+    // Reset all
+    chart.setActiveElements([]);
+    // Activate selected
+    chart.setActiveElements([{ datasetIndex: 0, index: index }]);
+    // Force visual emphasis by temporarily changing hoverOffset feel
+    chart.update('none');
+    
+    // Also flash the tooltip
+    const meta = chart.getDatasetMeta(0);
+    if (meta && meta.data[index]) {
+      chart.tooltip.setActiveElements([{ datasetIndex: 0, index: index }], { x: 0, y: 0 });
+      chart.update();
+    }
+  }
+
+  // Reset after 3 seconds
+  clearTimeout(window._highlightTimer);
+  window._highlightTimer = setTimeout(() => {
+    document.querySelectorAll('.bar-group').forEach(el => {
+      el.style.transform = '';
+      el.style.opacity = '';
+      el.style.filter = '';
+      el.style.zIndex = '';
+    });
+    document.querySelectorAll('.legend-row').forEach(el => {
+      el.style.background = 'transparent';
+      el.style.fontWeight = '';
+    });
+    if (charts.allocation) {
+      charts.allocation.setActiveElements([]);
+      charts.allocation.tooltip.setActiveElements([], { x: 0, y: 0 });
+      charts.allocation.update();
+    }
+  }, 3000);
 }
 
 /* =========================================================
@@ -4014,7 +4237,7 @@ function openAssetModal(id=null){
 
 
         ${field(
-          'Current Value (INR)',
+          'Value',
           'mValue',
           a?.value || 0,
           'number',
@@ -4272,7 +4495,7 @@ function openLiabilityModal(id=null){
 
 
       ${field(
-        'Outstanding Amount (INR)',
+        'Outstanding Amount',
         'mOutstanding',
         l?.outstanding || 0,
         'number',
@@ -4634,7 +4857,7 @@ function openFlowEdit(
 
 
       ${field(
-        'Amount (INR)',
+        'Amount',
         'mFAmount',
         x?.amount || 0,
         'number',
@@ -4821,43 +5044,32 @@ function deleteFlow(
    ========================================================= */
 
 const BUILTIN_ICONS = [
+  // Wealth & Finance
+  'building-2', 'home', 'landmark', 'banknote', 'wallet', 'piggy-bank',
+  'trending-up', 'chart-no-axes-combined', 'gem', 'coins', 'circle-dollar-sign',
+  'credit-card', 'receipt', 'briefcase', 'store', 'hand-coins',
 
-  'building-2',
-  'home',
-  'landmark',
-  'banknote',
-  'wallet',
-  'piggy-bank',
-  'trending-up',
-  'chart-no-axes-combined',
-  'gem',
-  'coins',
-  'car',
-  'bike',
-  'plane',
-  'briefcase',
-  'store',
-  'shopping-bag',
-  'receipt',
-  'credit-card',
-  'arrow-down-circle',
-  'arrow-up-circle',
-  'graduation-cap',
-  'heart-pulse',
-  'fuel',
-  'utensils',
-  'coffee',
-  'smartphone',
-  'laptop',
-  'camera',
-  'watch',
-  'key-round',
-  'house',
-  'map-pin',
-  'globe',
-  'shield-check',
-  'circle-dollar-sign'
+  // Transport
+  'car', 'bike', 'plane', 'train-front', 'bus', 'ship', 'fuel',
 
+  // Food & Lifestyle
+  'utensils', 'coffee', 'wine', 'pizza', 'apple', 'shopping-bag', 'shopping-cart',
+
+  // Health & Personal
+  'heart-pulse', 'activity', 'dumbbell', 'pill', 'stethoscope', 'smile',
+
+  // Home & Utilities
+  'house', 'sofa', 'lamp', 'droplets', 'zap', 'wifi', 'phone',
+
+  // Education & Work
+  'graduation-cap', 'book-open', 'laptop', 'smartphone', 'monitor', 'printer',
+
+  // Travel & Fun
+  'map-pin', 'globe', 'camera', 'gift', 'party-popper', 'music', 'gamepad-2',
+
+  // Others
+  'watch', 'key-round', 'shield-check', 'lock', 'users', 'baby', 'dog', 'cat',
+  'shirt', 'scissors', 'wrench', 'hammer', 'tree-pine', 'flower-2'
 ];
 
 
@@ -5071,39 +5283,21 @@ function openCategoryEdit(id=null){
 
 
       <label class="block mb-3">
-
-        <span class="text-xs font-semibold text-slate-500">
-          Built-in Icon
-        </span>
-
-
-        <select
-          id="mCIcon"
-          class="mt-1 w-full rounded-xl border border-slate-200 dark:border-wa-700 bg-white dark:bg-wa-900 px-3 py-2.5"
-        >
-
-          ${
-            BUILTIN_ICONS.map(
-              i => `
-
-                <option
-                  value="${i}"
-                  ${
-                    i ===
-                    (c?.icon || 'circle')
-                      ? 'selected'
-                      : ''
-                  }
-                >
-                  ${i}
-                </option>
-
-              `
-            ).join('')
-          }
-
+        <span class="text-xs font-semibold text-slate-500">Built-in Icon</span>
+        <select id="mCIcon" class="mt-1 w-full rounded-xl border border-slate-200 dark:border-wa-700 bg-white dark:bg-wa-900 px-3 py-2.5"
+          onchange="document.getElementById('mCIconCustom').value=this.value">
+          ${BUILTIN_ICONS.map(i => `
+            <option value="${i}" ${i === (c?.icon || 'circle') ? 'selected' : ''}>${i}</option>
+          `).join('')}
         </select>
+      </label>
 
+      <label class="block mb-3">
+        <span class="text-xs font-semibold text-slate-500">Or type any Lucide icon name</span>
+        <input id="mCIconCustom" type="text" value="${c?.icon || 'circle'}"
+          placeholder="e.g. car, home, gem, pizza, dog..."
+          class="mt-1 w-full rounded-xl border border-slate-200 dark:border-wa-700 bg-white dark:bg-wa-900 px-3 py-2.5 text-sm">
+        <p class="text-[10px] text-slate-400 mt-1">Type any icon from lucide.dev/icons</p>
       </label>
 
 
@@ -5219,9 +5413,9 @@ function saveCategory(){
 
 
   const icon =
-    document.getElementById(
-      'mCIcon'
-    ).value;
+    (document.getElementById('mCIconCustom')?.value || 
+     document.getElementById('mCIcon')?.value || 
+     'circle').trim() || 'circle';
 
 
   const color =
