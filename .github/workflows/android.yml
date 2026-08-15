@@ -40,6 +40,13 @@ jobs:
         working-directory: WealthApp-Mobile
         run: npm install --save-dev typescript
 
+      - name: Verify Capacitor
+        working-directory: WealthApp-Mobile
+        run: |
+          npx cap --version
+          node --version
+          npm --version
+
       - name: Add Android platform
         working-directory: WealthApp-Mobile
         run: npx cap add android
