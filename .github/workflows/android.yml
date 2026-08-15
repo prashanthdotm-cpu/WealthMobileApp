@@ -1,64 +1,88 @@
-name: Build WealthApp Android APK
+name: Build Android APK
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   build-android:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: WealthApp-Mobile
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Set up Java
+      - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: 21
 
-      - name: Set up Android SDK
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 12266719
+          accept-android-sdk-licenses: true
+          packages: tools platform-tools
 
-      - name: Install Android SDK
+      - name: Install Android SDK components
         run: |
           sdkmanager "platform-tools"
           sdkmanager "platforms;android-35"
           sdkmanager "build-tools;35.0.0"
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install npm dependencies
+        run: |
+          cd WealthApp-Mobile
+          npm ci
 
-      - name: Verify Capacitor
-        run: npx cap --version
+      - name: Remove stale android folder (critical)
+        run: |
+          cd WealthApp-Mobile
+          rm -rf android
 
-      - name: Add Android platform
-        run: npx cap add android
+      - name: Add Android platform fresh
+        run: |
+          cd WealthApp-Mobile
+          npx cap add android
+
+      - name: Strip ARCore from AndroidManifest.xml
+        run: |
+          MANIFEST="WealthApp-Mobile/android/app/src/main/AndroidManifest.xml"
+          if [ -f "$MANIFEST" ]; then
+            sed -i '/android.hardware.camera.ar/d' "$MANIFEST"
+            sed -i '/com.google.ar.core/d' "$MANIFEST"
+            sed -i '/ARCore/d' "$MANIFEST"
+            sed -i '/arcore/d' "$MANIFEST"
+            echo "=== Cleaned AndroidManifest.xml ==="
+            cat "$MANIFEST"
+          fi
 
       - name: Sync Capacitor
-        run: npx cap sync android
-
-      - name: Build Android APK
-        working-directory: WealthApp-Mobile/android
         run: |
+          cd WealthApp-Mobile
+          npx cap sync android
+
+      - name: Build Debug APK
+        run: |
+          cd WealthApp-Mobile/android
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Check APK
+      - name: Verify APK has no ARCore requirement
         run: |
-          ls -lh android/app/build/outputs/apk/debug/
-          test -f android/app/build/outputs/apk/debug/app-debug.apk
+          APK="WealthApp-Mobile/android/app/build/outputs/apk/debug/app-debug.apk"
+          echo "=== Checking APK manifest for ARCore references ==="
+          unzip -p "$APK" AndroidManifest.xml | strings | grep -i "arcore\|camera.ar" || echo "✅ No ARCore found in APK"
+          ls -lh "$APK"
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: WealthApp-debug-apk
