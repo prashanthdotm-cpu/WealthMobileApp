@@ -40,7 +40,7 @@ jobs:
       - name: Install npm dependencies
         run: |
           cd WealthApp-Mobile
-          npm ci
+          npm install
 
       - name: Check web assets for AR references
         run: |
@@ -126,3 +126,10 @@ jobs:
             $AAPT2 dump xmltree "$APK" AndroidManifest.xml | grep -iE "arcore|camera\.ar|com\.google\.ar" && exit 1 || echo "✅ PASS: aapt2 found no ARCore entries"
           else
             echo "aapt2 not found"
+          fi
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WealthApp-debug-apk
+          path: WealthApp-Mobile/android/app/build/outputs/apk/debug/app-debug.apk
