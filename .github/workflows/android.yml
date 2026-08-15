@@ -45,7 +45,7 @@ jobs:
       - name: Check web assets for AR references
         run: |
           echo "========== CHECKING www/ FOR AR REFERENCES =========="
-          grep -rni "arcore\|webar\|webxr\|immersive-ar\|navigator\.xr\|aframe\|mindar\|8thwall" WealthApp-Mobile/www/ || echo "No AR keywords found in www/"
+          grep -rni "arcore\|webar\|webxr\|immersive-ar\|navigator\.xr\|aframe\|mindar\|8thwall\|AR\.js\|ar\.js\|XRSession\|requestSession" WealthApp-Mobile/www/ || echo "✅ No AR keywords found in www/"
           echo "========== END CHECK =========="
 
       - name: Destroy and recreate Android platform fresh
@@ -54,55 +54,75 @@ jobs:
           rm -rf android
           npx cap add android
 
-      - name: Strip ARCore from generated Android project
+      - name: Strip ARCore (before sync)
         run: |
           cd WealthApp-Mobile/android
-          
-          # 1. Strip from AndroidManifest.xml
           MANIFEST="app/src/main/AndroidManifest.xml"
           if [ -f "$MANIFEST" ]; then
             sed -i '/android.hardware.camera.ar/d' "$MANIFEST"
             sed -i '/com.google.ar.core/d' "$MANIFEST"
             sed -i '/ARCore/d' "$MANIFEST"
             sed -i '/arcore/d' "$MANIFEST"
-            echo "=== AndroidManifest.xml (ARCore stripped) ==="
+            sed -i '/com.google.ar/d' "$MANIFEST"
+            sed -i '/uses-feature.*camera\.ar/d' "$MANIFEST"
+            sed -i '/meta-data.*ar\.core/d' "$MANIFEST"
+            echo "=== Manifest after initial strip ==="
             cat "$MANIFEST"
           fi
-          
-          # 2. Strip from all build.gradle files
-          find . -name "build.gradle" -exec sed -i '/arcore/d' {} \;
-          find . -name "build.gradle" -exec sed -i '/ARCore/d' {} \;
-          find . -name "build.gradle" -exec sed -i '/com.google.ar/d' {} \;
-          
-          # 3. Strip from gradle.properties
+          find . -name "build.gradle" -o -name "build.gradle.kts" | while read f; do
+            sed -i '/arcore/Id' "$f"
+            sed -i '/ARCore/Id' "$f"
+            sed -i '/com\.google\.ar/Id' "$f"
+          done
           if [ -f "gradle.properties" ]; then
-            sed -i '/arcore/d' gradle.properties
-            sed -i '/ARCore/d' gradle.properties
+            sed -i '/arcore/Id' gradle.properties
+            sed -i '/ARCore/Id' gradle.properties
           fi
-          
-          echo "=== Gradle files cleaned ==="
 
       - name: Sync Capacitor
         run: |
           cd WealthApp-Mobile
           npx cap sync android
 
+      - name: Final aggressive ARCore strip (after sync)
+        run: |
+          cd WealthApp-Mobile/android
+          MANIFEST="app/src/main/AndroidManifest.xml"
+          if [ -f "$MANIFEST" ]; then
+            sed -i '/android.hardware.camera.ar/d' "$MANIFEST"
+            sed -i '/com.google.ar.core/d' "$MANIFEST"
+            sed -i '/ARCore/d' "$MANIFEST"
+            sed -i '/arcore/d' "$MANIFEST"
+            sed -i '/com.google.ar/d' "$MANIFEST"
+            sed -i '/uses-feature.*camera\.ar/d' "$MANIFEST"
+            sed -i '/meta-data.*ar\.core/d' "$MANIFEST"
+            echo "=== Final AndroidManifest.xml ==="
+            cat "$MANIFEST"
+          fi
+          find . -name "build.gradle" -o -name "build.gradle.kts" | while read f; do
+            sed -i '/arcore/Id' "$f"
+            sed -i '/ARCore/Id' "$f"
+            sed -i '/com\.google\.ar/Id' "$f"
+          done
+
       - name: Build Debug APK
         run: |
           cd WealthApp-Mobile/android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
-      - name: Verify APK manifest (critical check)
+      - name: Verify APK (must pass)
         run: |
           APK="WealthApp-Mobile/android/app/build/outputs/apk/debug/app-debug.apk"
-          echo "========== APK MANIFEST VERIFICATION =========="
-          unzip -p "$APK" AndroidManifest.xml | strings | grep -i "arcore\|camera.ar\|com.google.ar" || echo "✅ PASS: No ARCore references found in APK manifest"
-          echo "========== END VERIFICATION =========="
+          echo "========== APK SIZE =========="
           ls -lh "$APK"
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: WealthApp-debug-apk
-          path: WealthApp-Mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          echo ""
+          echo "========== strings search =========="
+          unzip -p "$APK" AndroidManifest.xml | strings | grep -iE "arcore|camera\.ar|com\.google\.ar" && exit 1 || echo "✅ PASS: No ARCore via strings"
+          echo ""
+          echo "========== aapt2 dump =========="
+          AAPT2=$(find $ANDROID_HOME -name aapt2 | head -1)
+          if [ -n "$AAPT2" ]; then
+            $AAPT2 dump xmltree "$APK" AndroidManifest.xml | grep -iE "arcore|camera\.ar|com\.google\.ar" && exit 1 || echo "✅ PASS: aapt2 found no ARCore entries"
+          else
+            echo "aapt2 not found"
