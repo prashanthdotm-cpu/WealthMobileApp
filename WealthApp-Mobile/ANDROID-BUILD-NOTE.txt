@@ -1,0 +1,8 @@
+Android project generation requires the Capacitor CLI and Android SDK.
+Run:
+npm install
+npx cap add android
+npx cap sync android
+npx cap open android
+
+A precompiled APK is NOT included because it cannot be truthfully verified/built in this environment.
