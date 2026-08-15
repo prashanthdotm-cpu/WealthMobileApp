@@ -4,15 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="WealthApp" />
   <meta name="theme-color" content="#075E54" />
-  <meta name="description" content="Your personal wealth, clearly organized." />
 
   <title>WealthApp</title>
-
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css" />
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
@@ -20,21 +14,6228 @@
   />
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="app.js" defer></script>
-</head>
-<body class="h-full">
+
   <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./service-worker.js")
-          .then(function () {
-            console.log("WealthApp service worker registered");
-          })
-          .catch(function (error) {
-            console.error("WealthApp service worker registration failed:", error);
-          });
-      });
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            wa: {
+              50:'#E7F8F2',
+              400:'#25D366',
+              500:'#128C7E',
+              600:'#075E54',
+              700:'#054C44',
+              800:'#033D37',
+              900:'#022E29'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
     }
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    .wa-card {
+      background:#fff;
+      border-radius:1.25rem;
+      box-shadow:0 2px 12px rgba(7,94,84,.06);
+      border:1px solid #E7F8F2;
+    }
+
+    .dark .wa-card {
+      background:#033D37;
+      border-color:#054C44;
+    }
+
+    .nav-btn {
+      color:#64748b;
+    }
+
+    .nav-btn.active {
+      color:#128C7E;
+      background:rgba(37,211,102,.12);
+    }
+
+    .dark .nav-btn.active {
+      color:#25D366;
+      background:rgba(37,211,102,.15);
+    }
+
+    .icon-box {
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+    }
+
+    .progress-bar {
+      height:8px;
+      border-radius:99px;
+      background:#E7F8F2;
+      overflow:hidden;
+    }
+
+    .dark .progress-bar {
+      background:#054C44;
+    }
+
+    .progress-fill {
+      height:100%;
+      border-radius:99px;
+    }
+
+    .chat-bubble {
+      max-width:85%;
+      padding:.75rem 1rem;
+      border-radius:1.1rem;
+      font-size:.875rem;
+      line-height:1.4;
+      white-space:pre-line;
+    }
+
+    .chat-user {
+      background:#128C7E;
+      color:#fff;
+      margin-left:auto;
+      border-bottom-right-radius:.3rem;
+    }
+
+    .chat-bot {
+      background:#E7F8F2;
+      color:#033D37;
+      border-bottom-left-radius:.3rem;
+    }
+
+    .dark .chat-bot {
+      background:#054C44;
+      color:#E7F8F2;
+    }
+
+    .modal-backdrop {
+      background:rgba(2,46,41,.62);
+      backdrop-filter:blur(3px);
+    }
+
+    .modal-panel {
+      max-height:90vh;
+      overflow-y:auto;
+    }
+
+    .onboarding-dot {
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:#25D366;
+      display:inline-block;
+    }
+
+    .auth-input {
+      width:100%;
+      border-radius:12px;
+      border:1px solid #cbd5e1;
+      background:#fff;
+      padding:.75rem .85rem;
+      outline:none;
+    }
+
+    .dark .auth-input {
+      background:#022E29;
+      border-color:#054C44;
+      color:#fff;
+    }
+
+    .slide-card {
+      min-height:360px;
+    }
+
+    .chart-legend-item {
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+      min-width:0;
+    }
+
+    .chart-legend-dot {
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      flex-shrink:0;
+    }
+
+    input,
+    select,
+    textarea {
+      font-size:16px;
+    }
+
+/* ---- NEW DASHBOARD (from v1.0) ---- */
+.new-dashboard { padding-bottom: 8px; }
+.new-dashboard .welcome { margin-bottom: 20px; }
+.new-dashboard .welcome h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: #022E29; }
+.dark .new-dashboard .welcome h1 { color: #E7F8F2; }
+.new-dashboard .welcome p { color: #697386; font-size: 13px; margin-top: 4px; }
+.dark .new-dashboard .welcome p { color: #94a3b8; }
+
+.new-dashboard .cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (min-width: 640px) {
+  .new-dashboard .cards { grid-template-columns: repeat(4, 1fr); }
+}
+
+.new-dashboard .card {
+  background: #fff;
+  border: 1px solid #E7F8F2;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 12px rgba(7,94,84,.06);
+  padding: 16px;
+}
+.dark .new-dashboard .card {
+  background: #033D37;
+  border-color: #054C44;
+}
+
+.new-dashboard .metric-label { color: #697386; font-size: 12px; margin-bottom: 6px; font-weight: 600; }
+.dark .new-dashboard .metric-label { color: #94a3b8; }
+.new-dashboard .metric-value { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: #022E29; }
+.dark .new-dashboard .metric-value { color: #E7F8F2; }
+.new-dashboard .metric-sub { font-size: 11px; margin-top: 6px; color: #697386; }
+.dark .new-dashboard .metric-sub { color: #94a3b8; }
+
+.new-dashboard .dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+@media (min-width: 768px) {
+  .new-dashboard .dashboard-grid { grid-template-columns: 1.5fr 1fr; }
+}
+
+.new-dashboard .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.new-dashboard .card-title { font-weight: 700; font-size: 15px; color: #022E29; }
+.dark .new-dashboard .card-title { color: #E7F8F2; }
+.new-dashboard .card-action {
+  color: #128C7E;
+  background: transparent;
+  border: 0;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.new-dashboard .chart {
+  height: 200px;
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  padding: 20px 4px 24px;
+}
+.new-dashboard .bar-group {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  position: relative;
+}
+.new-dashboard .bar {
+  width: 70%;
+  max-width: 40px;
+  border-radius: 6px 6px 3px 3px;
+  min-height: 8px;
+  position: relative;
+  transition: height 0.4s ease;
+}
+.new-dashboard .bar-value {
+  position: absolute;
+  top: -20px;
+  width: 100%;
+  text-align: center;
+  font-size: 9px;
+  color: #697386;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.dark .new-dashboard .bar-value { color: #94a3b8; }
+.new-dashboard .bar-label {
+  position: absolute;
+  bottom: -20px;
+  font-size: 9px;
+  color: #697386;
+  text-align: center;
+  width: 100%;
+}
+.dark .new-dashboard .bar-label { color: #94a3b8; }
+
+.new-dashboard .allocation-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: center;
+}
+@media (min-width: 640px) {
+  .new-dashboard .allocation-layout { grid-template-columns: 140px 1fr; }
+}
+
+.new-dashboard .donut {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin: auto;
+}
+.new-dashboard .donut-inner {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+.dark .new-dashboard .donut-inner { background: #033D37; }
+.new-dashboard .donut-inner strong { font-size: 18px; display: block; color: #022E29; }
+.dark .new-dashboard .donut-inner strong { color: #E7F8F2; }
+.new-dashboard .donut-inner span { color: #697386; font-size: 10px; }
+.dark .new-dashboard .donut-inner span { color: #94a3b8; }
+
+.new-dashboard .legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.new-dashboard .legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  color: #022E29;
+}
+.dark .new-dashboard .legend-row { color: #E7F8F2; }
+.new-dashboard .legend-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.new-dashboard .legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.new-dashboard .table-card {
+  background: #fff;
+  border: 1px solid #E7F8F2;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 12px rgba(7,94,84,.06);
+  overflow: hidden;
+}
+.dark .new-dashboard .table-card {
+  background: #033D37;
+  border-color: #054C44;
+}
+.new-dashboard .table-scroll { overflow-x: auto; }
+.new-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+.new-dashboard th,
+.new-dashboard td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #E7F8F2;
+  font-size: 13px;
+  color: #022E29;
+}
+.dark .new-dashboard th,
+.dark .new-dashboard td {
+  border-bottom-color: #054C44;
+  color: #E7F8F2;
+}
+.new-dashboard th {
+  background: #f8fafc;
+  color: #697386;
+  font-weight: 700;
+}
+.dark .new-dashboard th {
+  background: #054C44;
+  color: #94a3b8;
+}
+.new-dashboard tr:last-child td { border-bottom: 0; }
+.new-dashboard .positive { color: #25D366; }
+.new-dashboard .negative { color: #EF4444; }
+
+  </style>
+</head>
+
+<body class="h-full bg-slate-50 dark:bg-wa-900 text-slate-900 dark:text-slate-100 antialiased">
+
+<div id="app" class="h-full flex flex-col max-w-[900px] mx-auto relative">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 bg-[#075E54] text-white shadow-lg">
+
+    <div class="px-4 py-3 flex items-center justify-between">
+
+      <div class="flex items-center gap-2.5">
+
+        <div class="w-9 h-9 rounded-full bg-[#25D366] flex items-center justify-center font-bold text-lg">
+          W
+        </div>
+
+        <div>
+          <h1 class="text-lg font-bold leading-tight">
+            WealthApp
+          </h1>
+
+          <p class="text-[10px] text-green-200">
+            Your Money, Clearly
+          </p>
+        </div>
+
+      </div>
+
+      <div class="flex items-center gap-2">
+
+        <select
+          id="currencySelect"
+          class="bg-white/20 text-white text-xs rounded-lg px-2 py-1.5 border-0 outline-none"
+        >
+          <option value="USD">USD $</option>
+          <option value="INR">INR ₹</option>
+          <option value="EUR">EUR €</option>
+          <option value="AED">AED</option>
+          <option value="GBP">GBP £</option>
+        </select>
+
+        <button
+          id="themeToggle"
+          class="p-2 rounded-full hover:bg-white/10"
+          aria-label="Toggle theme"
+        >
+          <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+          <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+        </button>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- MAIN -->
+  <main
+    id="mainContent"
+    class="flex-1 overflow-y-auto pb-28 px-4 pt-4"
+  ></main>
+
+
+  <!-- BOTTOM NAV -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-wa-800 border-t border-slate-200 dark:border-wa-700">
+
+    <div class="max-w-[900px] mx-auto flex items-center justify-around py-2">
+
+      <button
+        data-view="dashboard"
+        class="nav-btn active flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-[60px]"
+      >
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium">Home</span>
+      </button>
+
+      <button
+        data-view="wealth"
+        class="nav-btn flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-[60px]"
+      >
+        <i data-lucide="wallet" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium">Wealth</span>
+      </button>
+
+      <button
+        data-view="add"
+        class="nav-btn flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-[60px]"
+      >
+        <div class="w-10 h-10 -mt-5 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg">
+          <i data-lucide="plus" class="w-6 h-6"></i>
+        </div>
+
+        <span class="text-[10px] font-medium mt-0.5">
+          Add
+        </span>
+      </button>
+
+      <button
+        data-view="chat"
+        class="nav-btn flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-[60px]"
+      >
+        <i data-lucide="message-circle" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium">Chat</span>
+      </button>
+
+      <button
+        data-view="more"
+        class="nav-btn flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-[60px]"
+      >
+        <i data-lucide="menu" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium">More</span>
+      </button>
+
+    </div>
+
+  </nav>
+
+</div>
+
+
+<!-- TOAST -->
+<div
+  id="toast"
+  class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] hidden"
+>
+  <div class="bg-[#075E54] text-white px-5 py-3 rounded-2xl shadow-xl text-sm font-medium flex items-center gap-2">
+
+    <i
+      data-lucide="check-circle"
+      class="w-4 h-4 text-[#25D366]"
+    ></i>
+
+    <span id="toastMsg">
+      Done
+    </span>
+
+  </div>
+</div>
+
+
+<!-- MODAL ROOT -->
+<div id="modalRoot"></div>
+
+
+<script>
+
+/* =========================================================
+   WEALTHAPP
+   =========================================================
+   Version:
+   0.7
+
+   Features:
+   - Demo mode without registration
+   - Editable wealth data
+   - Clean pie chart leader labels
+   - Clean bar charts
+   - Bar chart tap / hover tooltips
+   - Custom categories
+   - Custom icons / images
+   - LocalStorage persistence
+   - Dark mode
+   - Currency conversion
+   - Chat / voice
+   ========================================================= */
+
+
+/* ---------------- DEFAULT DATA ---------------- */
+
+const DEFAULT_DATA = {
+
+  assets: [
+
+    {
+      id:'a1',
+      cat:'property',
+      name:'2BHK Apartment',
+      value:1200000,
+      location:'Pune',
+      owner:'Self',
+      note:''
+    },
+
+    {
+      id:'a2',
+      cat:'stocks',
+      name:'Equity Portfolio',
+      value:480000,
+      owner:'Self',
+      note:''
+    },
+
+    {
+      id:'a3',
+      cat:'fd',
+      name:'HDFC Bank FD',
+      value:300000,
+      rate:7.1,
+      owner:'Self',
+      note:''
+    },
+
+    {
+      id:'a4',
+      cat:'fd',
+      name:'SBI FD',
+      value:150000,
+      rate:6.8,
+      owner:'Self',
+      note:''
+    },
+
+    {
+      id:'a5',
+      cat:'gold',
+      name:'22K Jewellery',
+      value:220000,
+      weight:'85g',
+      owner:'Self',
+      note:''
+    },
+
+    {
+      id:'a6',
+      cat:'gold',
+      name:'Gold Coins + SGB',
+      value:100000,
+      owner:'Self',
+      note:''
+    },
+
+    {
+      id:'a7',
+      cat:'vehicles',
+      name:'Honda City',
+      value:150000,
+      owner:'Self',
+      note:''
+    },
+
+    {
+      id:'a8',
+      cat:'vehicles',
+      name:'Activa 6G',
+      value:30000,
+      owner:'Self',
+      note:''
+    },
+
+    {
+      id:'a9',
+      cat:'cash',
+      name:'Savings + Liquid',
+      value:70000,
+      owner:'Self',
+      note:''
+    }
+
+  ],
+
+
+  liabilities: [
+
+    {
+      id:'l1',
+      name:'Home Loan',
+      outstanding:380000,
+      emi:18500,
+      rate:7.5,
+      owner:'Self',
+      note:''
+    },
+
+    {
+      id:'l2',
+      name:'Personal Loan',
+      outstanding:40000,
+      emi:4500,
+      rate:14.0,
+      owner:'Self',
+      note:''
+    }
+
+  ],
+
+
+  income: [
+
+    {
+      id:'i1',
+      name:'Salary',
+      amount:95000,
+      cat:'Salary'
+    },
+
+    {
+      id:'i2',
+      name:'Side / Rental',
+      amount:12000,
+      cat:'Rental'
+    },
+
+    {
+      id:'i3',
+      name:'Interest & Dividend',
+      amount:4500,
+      cat:'Investment'
+    }
+
+  ],
+
+
+  expenses: [
+
+    {
+      id:'e1',
+      name:'Home Loan EMI',
+      amount:18500,
+      cat:'Housing'
+    },
+
+    {
+      id:'e2',
+      name:'Personal Loan EMI',
+      amount:4500,
+      cat:'Loan'
+    },
+
+    {
+      id:'e3',
+      name:'School Fees',
+      amount:12000,
+      cat:'Education'
+    },
+
+    {
+      id:'e4',
+      name:'Utilities',
+      amount:4800,
+      cat:'Utilities'
+    },
+
+    {
+      id:'e5',
+      name:'Grocery',
+      amount:14500,
+      cat:'Grocery'
+    },
+
+    {
+      id:'e6',
+      name:'Dining Out',
+      amount:6200,
+      cat:'Dining'
+    },
+
+    {
+      id:'e7',
+      name:'Shopping',
+      amount:8500,
+      cat:'Shopping'
+    },
+
+    {
+      id:'e8',
+      name:'Fuel',
+      amount:5200,
+      cat:'Transport'
+    },
+
+    {
+      id:'e9',
+      name:'Healthcare',
+      amount:2100,
+      cat:'Health'
+    },
+
+    {
+      id:'e10',
+      name:'Subscriptions',
+      amount:1499,
+      cat:'Other'
+    }
+
+  ],
+
+
+  categories: [
+
+    {
+      id:'property',
+      name:'Real Estate',
+      icon:'building-2',
+      color:'#3B82F6',
+      image:null
+    },
+
+    {
+      id:'stocks',
+      name:'Stocks & Equity',
+      icon:'trending-up',
+      color:'#8B5CF6',
+      image:null
+    },
+
+    {
+      id:'fd',
+      name:'Fixed Deposits',
+      icon:'landmark',
+      color:'#10B981',
+      image:null
+    },
+
+    {
+      id:'gold',
+      name:'Gold & Jewellery',
+      icon:'gem',
+      color:'#F59E0B',
+      image:null
+    },
+
+    {
+      id:'vehicles',
+      name:'Vehicles',
+      icon:'car',
+      color:'#F97316',
+      image:null
+    },
+
+    {
+      id:'cash',
+      name:'Cash & Liquid',
+      icon:'piggy-bank',
+      color:'#64748B',
+      image:null
+    }
+
+  ]
+
+};
+
+
+/* ---------------- STATE ---------------- */
+
+let DATA = loadData();
+
+let currency =
+  localStorage.getItem('wa-currency') || 'USD';
+
+let currentView = 'dashboard';
+
+let charts = {};
+
+let chatHistory = [];
+
+let recognition = null;
+
+let editing = null;
+
+let authUser =
+  JSON.parse(localStorage.getItem('wa-user') || 'null');
+
+let onboardingSlide = 0;
+
+let regMode = 'email';
+
+
+/* ---------------- RATES ---------------- */
+
+const RATES = {
+
+  INR:{
+    symbol:'₹',
+    rate:1
+  },
+
+  USD:{
+    symbol:'$',
+    rate:0.012
+  },
+
+  EUR:{
+    symbol:'€',
+    rate:0.011
+  },
+
+  AED:{
+    symbol:'د.إ',
+    rate:0.044
+  },
+
+  GBP:{
+    symbol:'£',
+    rate:0.0095
+  }
+
+};
+
+
+/* ---------------- HELPERS ---------------- */
+
+function clone(x){
+  return JSON.parse(JSON.stringify(x));
+}
+
+
+function loadData(){
+
+  try{
+
+    const saved =
+      JSON.parse(localStorage.getItem('wa-data'));
+
+    if(
+      saved &&
+      Array.isArray(saved.assets) &&
+      Array.isArray(saved.categories)
+    ){
+
+      return saved;
+
+    }
+
+  }catch(e){}
+
+  return clone(DEFAULT_DATA);
+}
+
+
+function saveData(){
+
+  localStorage.setItem(
+    'wa-data',
+    JSON.stringify(DATA)
+  );
+
+}
+
+
+function conv(n){
+
+  const r = RATES[currency];
+
+  const v =
+    Number(n || 0) * r.rate;
+
+  if(currency === 'INR'){
+
+    if(v >= 10000000){
+
+      return r.symbol +
+        (v/10000000).toFixed(2) +
+        ' Cr';
+
+    }
+
+    if(v >= 100000){
+
+      return r.symbol +
+        (v/100000).toFixed(2) +
+        ' L';
+
+    }
+
+    return r.symbol +
+      Math.round(v).toLocaleString('en-IN');
+
+  }
+
+  return r.symbol +
+    Math.round(v).toLocaleString('en-US');
+
+}
+
+
+function convFull(n){
+
+  const r = RATES[currency];
+
+  return r.symbol +
+    Math.round(
+      Number(n || 0) * r.rate
+    ).toLocaleString(
+      currency === 'INR'
+        ? 'en-IN'
+        : 'en-US'
+    );
+
+}
+
+
+function pct(p,t){
+
+  return t
+    ? ((p/t)*100).toFixed(1)
+    : '0.0';
+
+}
+
+
+function esc(s){
+
+  return String(s ?? '')
+    .replace(
+      /[&<>"']/g,
+      c => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#039;'
+      }[c])
+    );
+
+}
+
+
+/* ---------------- TOTALS ---------------- */
+
+function totals(){
+
+  const assets =
+    DATA.assets.reduce(
+      (s,a) =>
+        s + Number(a.value || 0),
+      0
+    );
+
+  const liabilities =
+    DATA.liabilities.reduce(
+      (s,l) =>
+        s + Number(l.outstanding || 0),
+      0
+    );
+
+  const income =
+    DATA.income.reduce(
+      (s,i) =>
+        s + Number(i.amount || 0),
+      0
+    );
+
+  const expenses =
+    DATA.expenses.reduce(
+      (s,e) =>
+        s + Number(e.amount || 0),
+      0
+    );
+
+  return {
+
+    assets,
+
+    liabilities,
+
+    net:
+      assets - liabilities,
+
+    income,
+
+    expenses,
+
+    surplus:
+      income - expenses
+
+  };
+
+}
+
+
+
+/* ---------------- LIABILITY STATS ---------------- */
+
+function liabilityStats(){
+
+  const totalOutstanding =
+    DATA.liabilities.reduce(
+      (s,l) => s + Number(l.outstanding || 0),
+      0
+    );
+
+  const totalAnnualInterest =
+    DATA.liabilities.reduce(
+      (s,l) =>
+        s + (
+          Number(l.outstanding || 0) *
+          (Number(l.rate || 0) / 100)
+        ),
+      0
+    );
+
+  const weightedRate =
+    totalOutstanding > 0
+      ? (totalAnnualInterest / totalOutstanding) * 100
+      : 0;
+
+  const highest =
+    DATA.liabilities.reduce(
+      (max,l) =>
+        (Number(l.rate || 0) > (max?.rate || 0))
+          ? l
+          : max,
+      null
+    );
+
+  return {
+    totalOutstanding,
+    totalAnnualInterest,
+    weightedRate,
+    highest,
+    count: DATA.liabilities.length
+  };
+}
+
+
+/* ---------------- SMART TIP ---------------- */
+
+function smartTip(t){
+
+  const ls = liabilityStats();
+
+  const bondRate = 12.0;
+
+  const surplus = Number(t.surplus || 0);
+
+  let html = '';
+
+  /* ---- LIABILITIES vs INVESTMENTS ROI BALANCE ---- */
+
+  html += `
+    <div class="mt-3 mb-3 p-3 rounded-xl bg-[#E7F8F2] dark:bg-[#054C44]">
+      <p class="text-xs font-bold mb-2 text-[#075E54] dark:text-[#25D366]">
+        ⚖️ Liabilities vs Investments ROI Balance
+      </p>
+      <div class="space-y-2">
+  `;
+
+  /* Weighted liability rate bar */
+  const maxRate = Math.max(ls.weightedRate, bondRate, 1);
+  const liabPct = Math.min((ls.weightedRate / maxRate) * 100, 100);
+  const bondPct = Math.min((bondRate / maxRate) * 100, 100);
+
+  html += `
+    <div>
+      <div class="flex justify-between text-[11px] mb-0.5">
+        <span class="font-semibold text-red-500">Avg. Liability Rate</span>
+        <span class="font-bold">${ls.weightedRate.toFixed(1)}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:${liabPct}%;background:#EF4444"></div>
+      </div>
+    </div>
+    <div>
+      <div class="flex justify-between text-[11px] mb-0.5">
+        <span class="font-semibold text-emerald-500">A+ Bond Rate</span>
+        <span class="font-bold">${bondRate.toFixed(1)}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:${bondPct}%;background:#10B981"></div>
+      </div>
+    </div>
+  `;
+
+  html += `</div></div>`;
+
+  /* ---- SMART RECOMMENDATION ---- */
+
+  if(surplus > 0){
+
+    if(ls.weightedRate > bondRate){
+
+      const liabAlloc = Math.round(surplus * 0.70);
+      const invAlloc = surplus - liabAlloc;
+
+      html += `
+        <div class="mt-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800">
+          <p class="text-xs font-bold text-red-600 dark:text-red-300 mb-1">
+            🚨 High Liability Cost Detected
+          </p>
+          <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-5">
+            Your weighted liability rate is <strong>${ls.weightedRate.toFixed(1)}%</strong>,
+            which is higher than the A+ bond rate of <strong>${bondRate}%</strong>.
+            <br><br>
+            <strong>Recommended split of ${conv(surplus)} surplus:</strong>
+          </p>
+          <ul class="text-[11px] text-slate-600 dark:text-slate-300 mt-1.5 space-y-1 ml-4 list-disc">
+            <li><strong>${conv(liabAlloc)} (70%)</strong> → Prepay your highest-rate liability
+              ${ls.highest ? '(' + esc(ls.highest.name) + ' at ' + ls.highest.rate + '%)' : ''}
+            </li>
+            <li><strong>${conv(invAlloc)} (30%)</strong> → A+ grade bonds @ 12% ROI
+              <span class="text-[10px] text-slate-400">(Subject to T&amp;C, market risks &amp; credit rating)</span>
+            </li>
+          </ul>
+          <p class="text-[10px] text-slate-400 mt-2 italic">
+            *This is a suggestion only. Consult a SEBI-registered investment advisor before acting.
+          </p>
+        </div>
+      `;
+
+    } else if(ls.weightedRate > 0){
+
+      const invAlloc = Math.round(surplus * 0.60);
+      const liabAlloc = surplus - invAlloc;
+
+      html += `
+        <div class="mt-2 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800">
+          <p class="text-xs font-bold text-emerald-600 dark:text-emerald-300 mb-1">
+            ✅ Investment Opportunity
+          </p>
+          <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-5">
+            Your liability rate (${ls.weightedRate.toFixed(1)}%) is below the A+ bond rate (${bondRate}%).
+            <br><br>
+            <strong>Recommended split of ${conv(surplus)} surplus:</strong>
+          </p>
+          <ul class="text-[11px] text-slate-600 dark:text-slate-300 mt-1.5 space-y-1 ml-4 list-disc">
+            <li><strong>${conv(invAlloc)} (60%)</strong> → A+ grade bonds @ 12% ROI
+              <span class="text-[10px] text-slate-400">(Subject to T&amp;C, market risks &amp; credit rating)</span>
+            </li>
+            <li><strong>${conv(liabAlloc)} (40%)</strong> → Prepay liabilities for peace of mind</li>
+          </ul>
+          <p class="text-[10px] text-slate-400 mt-2 italic">
+            *This is a suggestion only. Consult a SEBI-registered investment advisor before acting.
+          </p>
+        </div>
+      `;
+
+    } else {
+
+      html += `
+        <div class="mt-2 p-3 rounded-xl bg-[#E7F8F2] dark:bg-[#054C44]">
+          <p class="text-xs font-bold text-[#128C7E] mb-1">
+            💡 No Active Liabilities
+          </p>
+          <p class="text-[11px] text-slate-600 dark:text-slate-300">
+            You have no interest-bearing liabilities.
+            Consider investing your full surplus of ${conv(surplus)} into A+ grade bonds @ 12% ROI
+            <span class="text-[10px] text-slate-400">(Subject to T&amp;C, market risks &amp; credit rating)</span>.
+          </p>
+          <p class="text-[10px] text-slate-400 mt-2 italic">
+            *This is a suggestion only. Consult a SEBI-registered investment advisor before acting.
+          </p>
+        </div>
+      `;
+
+    }
+
+  } else {
+
+    html += `
+      <div class="mt-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800">
+        <p class="text-xs font-bold text-amber-600 dark:text-amber-300 mb-1">
+          ⚠️ No Surplus This Month
+        </p>
+        <p class="text-[11px] text-slate-600 dark:text-slate-300">
+          Your expenses exceed income by ${conv(Math.abs(surplus))}.
+          Focus on reducing high-interest liabilities first
+          ${ls.highest ? '(' + esc(ls.highest.name) + ' at ' + ls.highest.rate + '%)' : ''}
+          before considering investments.
+        </p>
+      </div>
+    `;
+
+  }
+
+  return html;
+}
+
+
+/* ---------------- CATEGORY TOTALS ---------------- */
+
+function categoryTotals(){
+
+  return DATA.categories.map(c => ({
+
+    ...c,
+
+    value:
+      DATA.assets
+        .filter(a => a.cat === c.id)
+        .reduce(
+          (s,a) =>
+            s + Number(a.value || 0),
+          0
+        )
+
+  }));
+
+}
+
+
+/* ---------------- ICON HTML ---------------- */
+
+function iconHtml(
+  cat,
+  size='w-5 h-5'
+){
+
+  if(cat?.image){
+
+    return `
+      <img
+        src="${cat.image}"
+        alt=""
+        class="w-full h-full object-cover rounded-xl"
+      >
+    `;
+
+  }
+
+  return `
+    <i
+      data-lucide="${esc(cat?.icon || 'circle')}"
+      class="${size}"
+    ></i>
+  `;
+
+}
+
+
+/* =========================================================
+   INIT
+   ========================================================= */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  () => {
+
+    if(
+      localStorage.getItem('wa-theme')
+      === 'dark'
+    ){
+
+      document.documentElement
+        .classList.add('dark');
+
+    }
+
+
+    const currencySelect =
+      document.getElementById(
+        'currencySelect'
+      );
+
+
+    currencySelect.value =
+      currency;
+
+
+    currencySelect.onchange =
+      e => {
+
+        currency =
+          e.target.value;
+
+        localStorage.setItem(
+          'wa-currency',
+          currency
+        );
+
+        render(currentView);
+
+      };
+
+
+    document.getElementById(
+      'themeToggle'
+    ).onclick = () => {
+
+      document.documentElement
+        .classList.toggle('dark');
+
+      localStorage.setItem(
+        'wa-theme',
+        document.documentElement
+          .classList.contains('dark')
+          ? 'dark'
+          : 'light'
+      );
+
+      render(currentView);
+
+    };
+
+
+    document.querySelectorAll(
+      '.nav-btn'
+    ).forEach(btn => {
+
+      btn.onclick = () => {
+
+        document.querySelectorAll(
+          '.nav-btn'
+        ).forEach(
+          b => b.classList.remove('active')
+        );
+
+        btn.classList.add('active');
+
+        render(btn.dataset.view);
+
+      };
+
+    });
+
+
+    const SR =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+
+    if(SR){
+
+      recognition = new SR();
+
+      recognition.lang = 'en-IN';
+
+      recognition.interimResults = false;
+
+      recognition.onresult =
+        e => {
+
+          const text =
+            e.results[0][0].transcript;
+
+          addChat(
+            'user',
+            text
+          );
+
+          processCommand(text);
+
+        };
+
+
+      recognition.onerror =
+        () => {
+
+          showToast(
+            'Voice not available or permission denied'
+          );
+
+        };
+
+    }
+
+
+    /*
+      IMPORTANT:
+      Users can now explore without registration.
+    */
+
+    if(authUser){
+
+      render('dashboard');
+
+    }else{
+
+      renderAuth();
+
+    }
+
+
+    setTimeout(
+      () => lucide.createIcons(),
+      60
+    );
+
+  }
+);
+
+
+/* =========================================================
+   AUTH + ONBOARDING
+   ========================================================= */
+
+function renderAuth(){
+
+  document.getElementById(
+    'mainContent'
+  ).className =
+    'flex-1 overflow-y-auto pb-8 px-4 pt-4';
+
+
+  document.getElementById(
+    'mainContent'
+  ).innerHTML = `
+
+    <div class="py-4">
+
+      <div class="wa-card overflow-hidden">
+
+        <div class="bg-gradient-to-br from-[#075E54] to-[#128C7E] text-white p-6">
+
+          <div class="w-14 h-14 rounded-2xl bg-[#25D366] flex items-center justify-center text-2xl font-extrabold mb-4">
+            W
+          </div>
+
+          <p class="text-xs text-green-100 mb-1">
+            WELCOME TO
+          </p>
+
+          <h2 class="text-2xl font-extrabold">
+            WealthApp
+          </h2>
+
+          <p class="text-sm text-green-50 mt-2">
+            Your personal wealth, clearly organized.
+          </p>
+
+        </div>
+
+
+        <div class="p-5">
+
+          <div class="flex gap-1.5 mb-4">
+
+            ${[0,1,2,3,4]
+              .map(
+                (_,i) =>
+                  `<span class="onboarding-dot flex-1 ${
+                    i===0
+                      ? 'opacity-100'
+                      : 'opacity-20'
+                  }"></span>`
+              )
+              .join('')
+            }
+
+          </div>
+
+
+          <div id="onboardingContent"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  renderOnboardingSlide(0);
+
+  lucide.createIcons();
+
+}
+
+
+/* ---------------- ONBOARDING ---------------- */
+
+function renderOnboardingSlide(i){
+
+  onboardingSlide = i;
+
+  const slides = [
+
+    {
+      icon:'layout-dashboard',
+      title:'See your complete wealth picture',
+      text:'Track assets, liabilities, net worth, income and expenses in one simple dashboard.'
+    },
+
+    {
+      icon:'mic',
+      title:'Update wealth by typing or voice',
+      text:'Tell WealthApp what happened. For example: “Add ₹5,000 grocery expense” or “Update my gold to ₹4 lakh.”'
+    },
+
+    {
+      icon:'pie-chart',
+      title:'Understand where your money goes',
+      text:'Pie charts use clean leader lines, while bar charts stay uncluttered. Tap a bar to see the exact value and percentage.'
+    },
+
+    {
+      icon:'trending-up',
+      title:'Get useful financial insights',
+      text:'See spending patterns, investment allocation and opportunities to improve your wealth over time.'
+    },
+
+    {
+      icon:'shield-check',
+      title:'Explore first. Register when you are ready.',
+      text:'Start with the sample wealth profile, edit the numbers to match your own situation, and explore the dashboard before creating an account.'
+    }
+
+  ];
+
+
+  const s =
+    slides[i];
+
+  const last =
+    i === slides.length - 1;
+
+
+  /* Update dots */
+  const dots = document.querySelectorAll('.onboarding-dot');
+  dots.forEach((dot, idx) => {
+    dot.style.opacity = idx === i ? '1' : '0.2';
+  });
+
+  document.getElementById(
+    'onboardingContent'
+  ).innerHTML = `
+
+    <div class="slide-card flex flex-col justify-between">
+
+      <div>
+
+        <div class="w-16 h-16 rounded-2xl bg-[#E7F8F2] text-[#075E54] flex items-center justify-center mb-5">
+
+          <i
+            data-lucide="${s.icon}"
+            class="w-8 h-8"
+          ></i>
+
+        </div>
+
+
+        <h3 class="text-xl font-bold mb-2">
+          ${s.title}
+        </h3>
+
+
+        <p class="text-sm text-slate-500 leading-6">
+          ${s.text}
+        </p>
+
+      </div>
+
+
+      <div class="pt-8">
+
+        ${
+          last
+          ?
+
+          `
+
+            <button
+              onclick="enterDemoMode()"
+              class="w-full py-3 rounded-xl bg-[#25D366] text-white font-bold"
+            >
+              Explore WealthApp
+            </button>
+
+
+            <button
+              onclick="showRegistration()"
+              class="w-full py-3 mt-2 rounded-xl bg-[#E7F8F2] text-[#075E54] font-semibold"
+            >
+              Create Account
+            </button>
+
+
+            <p class="text-[11px] text-slate-400 text-center mt-3">
+              No registration required to explore and edit the demo.
+            </p>
+
+          `
+
+          :
+
+          `
+
+            <button
+              onclick="renderOnboardingSlide(${i+1})"
+              class="w-full py-3 rounded-xl bg-[#25D366] text-white font-bold"
+            >
+              Next
+            </button>
+
+          `
+        }
+
+
+        ${
+          i > 0
+
+          ?
+
+          `
+
+            <button
+              onclick="renderOnboardingSlide(${i-1})"
+              class="w-full py-2 mt-2 text-sm text-slate-500"
+            >
+              Back
+            </button>
+
+          `
+
+          : ''
+
+        }
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  lucide.createIcons();
+
+}
+
+
+/* ---------------- DEMO MODE ---------------- */
+
+function enterDemoMode(){
+
+  /*
+    Demo mode intentionally does not create an account.
+    Default/sample data is editable and saved locally.
+  */
+
+  authUser = null;
+
+  document.getElementById(
+    'mainContent'
+  ).className =
+    'flex-1 overflow-y-auto pb-28 px-4 pt-4';
+
+  render('dashboard');
+
+  showToast(
+    'Demo mode — edit your wealth freely'
+  );
+
+}
+
+
+/* ---------------- REGISTRATION ---------------- */
+
+function showRegistration(){
+
+  document.getElementById(
+    'mainContent'
+  ).innerHTML = `
+
+    <div class="py-4">
+
+      <div class="wa-card p-5">
+
+        <div class="flex items-center gap-2 mb-1">
+
+          <span class="onboarding-dot"></span>
+
+          <span class="text-xs font-bold text-[#128C7E]">
+            CREATE YOUR WEALTH PROFILE
+          </span>
+
+        </div>
+
+
+        <h2 class="text-xl font-bold mb-1">
+          Email or phone — your choice
+        </h2>
+
+
+        <p class="text-sm text-slate-500 mb-5">
+          Register when you're ready to save and track your wealth profile long-term.
+        </p>
+
+
+        <div class="grid grid-cols-2 gap-2 mb-4">
+
+          <button
+            id="regEmailTab"
+            onclick="setRegMode('email')"
+            class="py-2.5 rounded-xl bg-[#E7F8F2] text-[#075E54] font-semibold text-sm"
+          >
+            Email
+          </button>
+
+
+          <button
+            id="regPhoneTab"
+            onclick="setRegMode('phone')"
+            class="py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-slate-600 dark:text-slate-200 font-semibold text-sm"
+          >
+            Phone
+          </button>
+
+        </div>
+
+
+        <div id="registrationForm"></div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  setRegMode('email');
+
+}
+
+
+/* ---------------- REG MODE ---------------- */
+
+function setRegMode(mode){
+
+  regMode = mode;
+
+  const box =
+    document.getElementById(
+      'registrationForm'
+    );
+
+  if(!box) return;
+
+
+  box.innerHTML = `
+
+    <label class="block mb-3">
+
+      <span class="text-xs font-semibold text-slate-500">
+        ${
+          mode === 'email'
+            ? 'Email address'
+            : 'Phone number'
+        }
+      </span>
+
+
+      <input
+        id="regIdentifier"
+        class="auth-input mt-1"
+        type="${
+          mode === 'email'
+            ? 'email'
+            : 'tel'
+        }"
+        placeholder="${
+          mode === 'email'
+            ? 'you@example.com'
+            : '+971 50 123 4567'
+        }"
+      >
+
+    </label>
+
+
+    <label class="block mb-3">
+
+      <span class="text-xs font-semibold text-slate-500">
+        Your name
+      </span>
+
+
+      <input
+        id="regName"
+        class="auth-input mt-1"
+        type="text"
+        placeholder="Your name"
+      >
+
+    </label>
+
+
+    <label class="block mb-4">
+
+      <span class="text-xs font-semibold text-slate-500">
+        Password / PIN
+      </span>
+
+
+      <input
+        id="regSecret"
+        class="auth-input mt-1"
+        type="password"
+        placeholder="Create a secure password or PIN"
+      >
+
+    </label>
+
+
+    <button
+      onclick="createLocalProfile()"
+      class="w-full py-3 rounded-xl bg-[#25D366] text-white font-bold"
+    >
+      Create Account
+    </button>
+
+
+    <button
+      onclick="render('dashboard')"
+      class="w-full py-2.5 mt-2 rounded-xl text-sm font-semibold text-slate-500"
+    >
+      Continue in Demo Mode
+    </button>
+
+
+    <p class="text-[11px] text-slate-400 mt-3 text-center">
+      Prototype: account details are stored locally on this device. Production authentication will use a secure backend.
+    </p>
+
+  `;
+
+
+  document.getElementById(
+    'regEmailTab'
+  ).className =
+    mode === 'email'
+
+      ?
+
+      'py-2.5 rounded-xl bg-[#E7F8F2] text-[#075E54] font-semibold text-sm'
+
+      :
+
+      'py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-slate-600 dark:text-slate-200 font-semibold text-sm';
+
+
+  document.getElementById(
+    'regPhoneTab'
+  ).className =
+    mode === 'phone'
+
+      ?
+
+      'py-2.5 rounded-xl bg-[#E7F8F2] text-[#075E54] font-semibold text-sm'
+
+      :
+
+      'py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-slate-600 dark:text-slate-200 font-semibold text-sm';
+
+}
+
+
+/* ---------------- CREATE PROFILE ---------------- */
+
+function createLocalProfile(){
+
+  const identifier =
+    (
+      document.getElementById(
+        'regIdentifier'
+      )?.value || ''
+    ).trim();
+
+
+  const name =
+    (
+      document.getElementById(
+        'regName'
+      )?.value || ''
+    ).trim();
+
+
+  const secret =
+    (
+      document.getElementById(
+        'regSecret'
+      )?.value || ''
+    ).trim();
+
+
+  if(
+    !identifier ||
+    !name ||
+    !secret
+  ){
+
+    showToast(
+      'Please complete all fields'
+    );
+
+    return;
+
+  }
+
+
+  if(
+    regMode === 'email' &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      identifier
+    )
+  ){
+
+    showToast(
+      'Enter a valid email'
+    );
+
+    return;
+
+  }
+
+
+  if(
+    regMode === 'phone' &&
+    !/^[+0-9 ()-]{7,20}$/.test(
+      identifier
+    )
+  ){
+
+    showToast(
+      'Enter a valid phone number'
+    );
+
+    return;
+
+  }
+
+
+  authUser = {
+    name,
+    identifier,
+    type:regMode
+  };
+
+
+  localStorage.setItem(
+    'wa-user',
+    JSON.stringify(authUser)
+  );
+
+
+  document.getElementById(
+    'mainContent'
+  ).className =
+    'flex-1 overflow-y-auto pb-28 px-4 pt-4';
+
+
+  render('dashboard');
+
+  showToast(
+    'Welcome to WealthApp'
+  );
+
+}
+
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+
+function render(view){
+
+  currentView = view;
+
+
+  Object.values(charts).forEach(
+    c => {
+
+      try{
+        c.destroy();
+      }catch(e){}
+
+    }
+  );
+
+
+  charts = {};
+
+
+  const main =
+    document.getElementById(
+      'mainContent'
+    );
+
+
+  main.innerHTML = '';
+
+
+  if(view === 'dashboard')
+    renderDashboard();
+
+  else if(view === 'wealth')
+    renderWealth();
+
+  else if(view === 'add')
+    renderAdd();
+
+  else if(view === 'chat')
+    renderChat();
+
+  else
+    renderMore();
+
+
+  setTimeout(
+    () => lucide.createIcons(),
+    40
+  );
+
+}
+
+
+/* =========================================================
+   CLEAN CHART LABEL PLUGIN
+   ========================================================= */
+
+const chartLabelsPlugin = {
+
+  id:'wealthLabels',
+
+
+  afterDatasetsDraw(chart){
+
+    if(
+      !chart.data?.datasets?.length
+    ) return;
+
+
+    const ctx =
+      chart.ctx;
+
+
+    const dark =
+      document.documentElement
+        .classList
+        .contains('dark');
+
+
+    /*
+      PIE / DOUGHNUT
+    */
+
+    if(
+      chart.config.type === 'doughnut'
+    ){
+
+      const dataset =
+        chart.data.datasets[0];
+
+
+      const meta =
+        chart.getDatasetMeta(0);
+
+
+      const values =
+        dataset.data.map(
+          v => Number(v || 0)
+        );
+
+
+      const total =
+        values.reduce(
+          (a,b) => a+b,
+          0
+        );
+
+
+      if(!total) return;
+
+
+      ctx.save();
+
+
+      meta.data.forEach(
+        (element,i) => {
+
+          if(element.hidden)
+            return;
+
+
+          const raw =
+            values[i];
+
+
+          if(!raw)
+            return;
+
+
+          const props =
+            element.getProps(
+              [
+                'x',
+                'y',
+                'startAngle',
+                'endAngle',
+                'outerRadius'
+              ],
+              true
+            );
+
+
+          const angle =
+            (
+              props.startAngle +
+              props.endAngle
+            ) / 2;
+
+
+          const startRadius =
+            props.outerRadius + 3;
+
+
+          const elbowRadius =
+            props.outerRadius + 20;
+
+
+          const x1 =
+            props.x +
+            Math.cos(angle) *
+            startRadius;
+
+
+          const y1 =
+            props.y +
+            Math.sin(angle) *
+            startRadius;
+
+
+          const x2 =
+            props.x +
+            Math.cos(angle) *
+            elbowRadius;
+
+
+          const y2 =
+            props.y +
+            Math.sin(angle) *
+            elbowRadius;
+
+
+          const direction =
+            Math.cos(angle) >= 0
+              ? 1
+              : -1;
+
+
+          const lineLength =
+            38;
+
+
+          const x3 =
+            x2 +
+            direction *
+            lineLength;
+
+
+          const y3 =
+            y2;
+
+
+          const label =
+            String(
+              chart.data.labels?.[i] || ''
+            );
+
+
+          const percent =
+            (
+              (raw / total) *
+              100
+            ).toFixed(1) + '%';
+
+
+          /*
+            Leader line
+          */
+
+          ctx.beginPath();
+
+          ctx.moveTo(
+            x1,
+            y1
+          );
+
+          ctx.lineTo(
+            x2,
+            y2
+          );
+
+          ctx.lineTo(
+            x3,
+            y3
+          );
+
+
+          ctx.strokeStyle =
+            dataset.backgroundColor?.[i] ||
+            '#128C7E';
+
+
+          ctx.lineWidth =
+            1.5;
+
+
+          ctx.stroke();
+
+
+          /*
+            Arrow
+          */
+
+          const arrowSize =
+            4;
+
+
+          ctx.beginPath();
+
+
+          if(direction === 1){
+
+            ctx.moveTo(
+              x3,
+              y3
+            );
+
+            ctx.lineTo(
+              x3 - arrowSize,
+              y3 - arrowSize
+            );
+
+
+            ctx.moveTo(
+              x3,
+              y3
+            );
+
+            ctx.lineTo(
+              x3 - arrowSize,
+              y3 + arrowSize
+            );
+
+          }else{
+
+            ctx.moveTo(
+              x3,
+              y3
+            );
+
+            ctx.lineTo(
+              x3 + arrowSize,
+              y3 - arrowSize
+            );
+
+
+            ctx.moveTo(
+              x3,
+              y3
+            );
+
+            ctx.lineTo(
+              x3 + arrowSize,
+              y3 + arrowSize
+            );
+
+          }
+
+
+          ctx.stroke();
+
+
+          /*
+            Text
+          */
+
+          const textX =
+            x3 +
+            direction *
+            5;
+
+
+          ctx.textAlign =
+            direction === 1
+              ? 'left'
+              : 'right';
+
+
+          ctx.textBaseline =
+            'middle';
+
+
+          ctx.font =
+            '600 10px Inter, sans-serif';
+
+
+          ctx.fillStyle =
+            dark
+              ? '#E7F8F2'
+              : '#334155';
+
+
+          let displayName =
+            label;
+
+
+          if(
+            displayName.length > 18
+          ){
+
+            displayName =
+              displayName.substring(
+                0,
+                18
+              ) + '…';
+
+          }
+
+
+          ctx.fillText(
+            displayName,
+            textX,
+            y3 - 6
+          );
+
+
+          ctx.font =
+            '800 10px Inter, sans-serif';
+
+
+          ctx.fillStyle =
+            dataset.backgroundColor?.[i] ||
+            '#128C7E';
+
+
+          ctx.fillText(
+            percent,
+            textX,
+            y3 + 7
+          );
+
+        }
+      );
+
+
+      ctx.restore();
+
+    }
+
+    /*
+      BAR CHART:
+      Intentionally no permanent labels.
+      Values appear via tooltip.
+    */
+
+  }
+
+};
+
+
+Chart.register(
+  chartLabelsPlugin
+);
+
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+function renderOldDashboard(){
+
+  const t =
+    totals();
+
+
+  const cats =
+    categoryTotals()
+      .filter(c => c.value > 0);
+
+
+  const total =
+    t.assets;
+
+
+  document.getElementById(
+    'mainContent'
+  ).innerHTML = `
+
+
+    ${
+      !authUser
+
+      ?
+
+      `
+
+        <div class="wa-card p-3 mb-4 flex items-center justify-between gap-3 border-[#25D366]">
+
+          <div class="flex items-center gap-2">
+
+            <span class="w-2.5 h-2.5 rounded-full bg-[#25D366]"></span>
+
+            <div>
+
+              <p class="text-xs font-bold">
+                Demo Mode
+              </p>
+
+              <p class="text-[10px] text-slate-400">
+                Edit the sample values to explore WealthApp
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <button
+            onclick="showRegistration()"
+            class="text-xs font-bold text-[#128C7E]"
+          >
+            Register
+          </button>
+
+        </div>
+
+      `
+
+      : ''
+
+    }
+
+
+    <!-- NET WORTH -->
+
+    <div class="wa-card p-5 mb-4 bg-gradient-to-br from-[#075E54] to-[#128C7E] text-white border-0">
+
+      <p class="text-sm text-green-100 mb-1">
+
+        ${
+          authUser?.name
+            ? 'Welcome, ' + esc(authUser.name)
+            : 'Your Wealth Dashboard'
+        }
+
+      </p>
+
+
+      <p class="text-xs text-green-100/80 mb-1">
+        Total Net Worth
+      </p>
+
+
+      <h2 class="text-3xl font-bold">
+        ${conv(t.net)}
+      </h2>
+
+
+      <span class="inline-block mt-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+        ↑ 1.8% this month
+      </span>
+
+
+      <div class="grid grid-cols-2 gap-4 mt-5 pt-4 border-t border-white/20">
+
+        <div>
+
+          <p class="text-xs text-green-100">
+            Assets
+          </p>
+
+          <p class="font-semibold text-lg">
+            ${conv(t.assets)}
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <p class="text-xs text-green-100">
+            Liabilities
+          </p>
+
+          <p class="font-semibold text-lg text-red-200">
+            ${conv(t.liabilities)}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- EDIT BUTTON -->
+
+      <div class="mt-4">
+
+        <button
+          onclick="render('wealth')"
+          class="w-full py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-sm font-semibold flex items-center justify-center gap-2"
+        >
+
+          <i
+            data-lucide="pencil"
+            class="w-4 h-4"
+          ></i>
+
+          Edit My Wealth
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="grid grid-cols-3 gap-2.5 mb-4">
+
+      <div class="wa-card p-3 text-center">
+
+        <p class="text-[10px] text-slate-500">
+          Income
+        </p>
+
+        <p class="font-bold text-emerald-600 text-sm">
+          ${conv(t.income)}
+        </p>
+
+      </div>
+
+
+      <div class="wa-card p-3 text-center">
+
+        <p class="text-[10px] text-slate-500">
+          Expenses
+        </p>
+
+        <p class="font-bold text-red-500 text-sm">
+          ${conv(t.expenses)}
+        </p>
+
+      </div>
+
+
+      <div class="wa-card p-3 text-center">
+
+        <p class="text-[10px] text-slate-500">
+          Surplus
+        </p>
+
+        <p class="font-bold text-[#128C7E] text-sm">
+          ${conv(t.surplus)}
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- WEALTH BY CATEGORY -->
+
+    <div class="wa-card p-4 mb-4">
+
+      <h3 class="font-semibold text-sm mb-3">
+        Wealth by Category
+      </h3>
+
+
+      <div class="space-y-3">
+
+        ${
+          cats.map(
+            c => {
+
+              const p =
+                pct(
+                  c.value,
+                  total
+                );
+
+
+              return `
+
+                <div>
+
+                  <div class="flex items-center justify-between mb-1">
+
+                    <div class="flex items-center gap-2 min-w-0">
+
+                      <div
+                        class="icon-box bg-slate-100 dark:bg-wa-700"
+                        style="width:28px;height:28px"
+                      >
+                        ${iconHtml(
+                          c,
+                          'w-3.5 h-3.5'
+                        )}
+                      </div>
+
+
+                      <span class="text-sm font-medium truncate">
+                        ${esc(c.name)}
+                      </span>
+
+                    </div>
+
+
+                    <div class="text-right ml-2">
+
+                      <p class="text-sm font-semibold">
+                        ${conv(c.value)}
+                      </p>
+
+                      <p
+                        class="text-[11px] font-medium"
+                        style="color:${c.color}"
+                      >
+                        ${p}%
+                      </p>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="progress-bar">
+
+                    <div
+                      class="progress-fill"
+                      style="width:${p}%;background:${c.color}"
+                    ></div>
+
+                  </div>
+
+                </div>
+
+              `;
+
+            }
+          ).join('')
+        }
+
+      </div>
+
+    </div>
+
+
+    <!-- PIE -->
+
+    <div class="wa-card p-4 mb-4">
+
+      <div class="flex items-center justify-between mb-3">
+
+        <div>
+
+          <h3 class="font-semibold text-sm">
+            Allocation
+          </h3>
+
+          <p class="text-[10px] text-slate-400">
+            Tap a slice for details
+          </p>
+
+        </div>
+
+
+        <span class="text-xs font-semibold text-[#128C7E]">
+          ${conv(total)}
+        </span>
+
+      </div>
+
+
+      <div style="height:300px">
+
+        <canvas id="pieChart"></canvas>
+
+      </div>
+
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+
+        ${
+          cats.map(
+            c => `
+
+              <div class="chart-legend-item text-xs">
+
+                <span
+                  class="chart-legend-dot"
+                  style="background:${c.color}"
+                ></span>
+
+
+                <span class="truncate flex-1">
+                  ${esc(c.name)}
+                </span>
+
+
+                <span class="font-bold">
+                  ${pct(c.value,total)}%
+                </span>
+
+
+                <span class="text-slate-400">
+                  ${conv(c.value)}
+                </span>
+
+              </div>
+
+            `
+          ).join('')
+        }
+
+      </div>
+
+    </div>
+
+
+    <!-- BAR -->
+
+    <div class="wa-card p-4 mb-4">
+
+      <h3 class="font-semibold text-sm">
+        Category Comparison
+      </h3>
+
+
+      <p class="text-[10px] text-slate-400 mb-2">
+        Tap any bar to see the value and percentage
+      </p>
+
+
+      <div style="height:250px">
+
+        <canvas id="barChart"></canvas>
+
+      </div>
+
+    </div>
+
+
+    <!-- INCOME EXPENSE -->
+
+    <div class="wa-card p-4 mb-4">
+
+      <h3 class="font-semibold text-sm">
+        Income vs Expenses
+      </h3>
+
+
+      <p class="text-[10px] text-slate-400 mb-2">
+        Tap a bar to see the exact amount
+      </p>
+
+
+      <div style="height:200px">
+
+        <canvas id="ieChart"></canvas>
+
+      </div>
+
+    </div>
+
+
+    <!-- TIP -->
+
+    <div class="wa-card p-4 border-l-4 border-[#25D366]">
+
+      <p class="text-sm font-medium mb-1">
+        💡 Tip
+      </p>
+
+
+      <p class="text-xs text-slate-500">
+
+        Surplus this month:
+        ${conv(t.surplus)}.
+
+        Edit your assets, liabilities,
+        income and expenses from the
+        Wealth section.
+
+      </p>
+
+    </div>
+
+  `;
+
+
+  setTimeout(
+    () => {
+
+      /* ---------- PIE ---------- */
+
+      charts.pie =
+        new Chart(
+          document.getElementById(
+            'pieChart'
+          ),
+          {
+
+            type:'doughnut',
+
+            data:{
+
+              labels:
+                cats.map(
+                  c => c.name
+                ),
+
+              datasets:[{
+
+                data:
+                  cats.map(
+                    c => c.value
+                  ),
+
+                backgroundColor:
+                  cats.map(
+                    c => c.color
+                  ),
+
+                borderWidth:2,
+
+                borderColor:
+                  document.documentElement
+                    .classList
+                    .contains('dark')
+                    ? '#033D37'
+                    : '#fff',
+
+                hoverOffset:8
+
+              }]
+
+            },
+
+
+            options:{
+
+              responsive:true,
+
+              maintainAspectRatio:false,
+
+              cutout:'42%',
+
+              layout:{
+                padding:40
+              },
+
+              plugins:{
+
+                legend:{
+                  display:false
+                },
+
+
+                tooltip:{
+
+                  callbacks:{
+
+                    label:ctx => {
+
+                      const v =
+                        Number(
+                          ctx.raw || 0
+                        );
+
+
+                      const p =
+                        pct(
+                          v,
+                          total
+                        );
+
+
+                      return `
+                        ${ctx.label}:
+                        ${conv(v)}
+                        (${p}%)
+                      `;
+
+                    }
+
+                  }
+
+                }
+
+              }
+
+            }
+
+          }
+        );
+
+
+      /* ---------- CATEGORY BAR ---------- */
+
+      charts.bar =
+        new Chart(
+          document.getElementById(
+            'barChart'
+          ),
+          {
+
+            type:'bar',
+
+            data:{
+
+              labels:
+                cats.map(
+                  c => c.name
+                ),
+
+              datasets:[{
+
+                data:
+                  cats.map(
+                    c => c.value
+                  ),
+
+                backgroundColor:
+                  cats.map(
+                    c => c.color
+                  ),
+
+                borderRadius:6,
+
+                borderSkipped:false
+
+              }]
+
+            },
+
+
+            options:{
+
+              responsive:true,
+
+              maintainAspectRatio:false,
+
+              layout:{
+
+                padding:{
+                  top:10,
+                  left:5,
+                  right:5
+                }
+
+              },
+
+
+              plugins:{
+
+                legend:{
+                  display:false
+                },
+
+
+                tooltip:{
+
+                  enabled:true,
+
+                  callbacks:{
+
+                    title:
+                      ctx =>
+                        ctx[0]?.label || '',
+
+
+                    label:ctx => {
+
+                      const v =
+                        Number(
+                          ctx.raw || 0
+                        );
+
+
+                      return [
+
+                        `Value: ${conv(v)}`,
+
+                        `Allocation: ${pct(v,total)}%`
+
+                      ];
+
+                    }
+
+                  }
+
+                }
+
+              },
+
+
+              scales:{
+
+                x:{
+
+                  grid:{
+                    display:false
+                  },
+
+                  ticks:{
+
+                    font:{
+                      size:9
+                    },
+
+                    maxRotation:35,
+
+                    minRotation:25
+
+                  }
+
+                },
+
+
+                y:{
+
+                  grid:{
+
+                    color:
+                      document.documentElement
+                        .classList
+                        .contains('dark')
+
+                        ?
+
+                        '#054C44'
+
+                        :
+
+                        '#f1f5f9'
+
+                  },
+
+
+                  ticks:{
+
+                    callback:
+                      v => conv(v)
+
+                  }
+
+                }
+
+              }
+
+            }
+
+          }
+
+        );
+
+
+      /* ---------- INCOME EXPENSE BAR ---------- */
+
+      charts.ie =
+        new Chart(
+          document.getElementById(
+            'ieChart'
+          ),
+          {
+
+            type:'bar',
+
+            data:{
+
+              labels:[
+                'Income',
+                'Expenses',
+                'Surplus'
+              ],
+
+              datasets:[{
+
+                data:[
+                  t.income,
+                  t.expenses,
+                  t.surplus
+                ],
+
+                backgroundColor:[
+                  '#10B981',
+                  '#EF4444',
+                  '#128C7E'
+                ],
+
+                borderRadius:8,
+
+                borderSkipped:false
+
+              }]
+
+            },
+
+
+            options:{
+
+              responsive:true,
+
+              maintainAspectRatio:false,
+
+              layout:{
+                padding:{
+                  top:10
+                }
+              },
+
+
+              plugins:{
+
+                legend:{
+                  display:false
+                },
+
+
+                tooltip:{
+
+                  callbacks:{
+
+                    title:
+                      ctx =>
+                        ctx[0]?.label || '',
+
+
+                    label:
+                      ctx =>
+                        `Amount: ${conv(ctx.raw)}`
+
+                  }
+
+                }
+
+              },
+
+
+              scales:{
+
+                x:{
+
+                  grid:{
+                    display:false
+                  }
+
+                },
+
+
+                y:{
+
+                  grid:{
+
+                    color:
+                      document.documentElement
+                        .classList
+                        .contains('dark')
+
+                        ?
+
+                        '#054C44'
+
+                        :
+
+                        '#f1f5f9'
+
+                  },
+
+
+                  ticks:{
+
+                    callback:
+                      v => conv(v)
+
+                  }
+
+                }
+
+              }
+
+            }
+
+          }
+
+        );
+
+
+      lucide.createIcons();
+
+    },
+
+    40
+  );
+
+}
+
+
+/* =========================================================
+   NEW DASHBOARD (from v1.0)
+   ========================================================= */
+
+function renderDashboard(){
+  const t = totals();
+  const cats = categoryTotals().filter(c => c.value > 0);
+  const totalAssets = t.assets;
+
+  const maxCatValue = Math.max(...cats.map(c => c.value), 1);
+
+  const barChartHtml = cats.map(c => {
+    const height = Math.max((c.value / maxCatValue) * 100, 5);
+    return `
+      <div class="bar-group">
+        <div class="bar" style="height:${height}%;background:${esc(c.color)}">
+          <span class="bar-value">${conv(c.value)}</span>
+        </div>
+        <span class="bar-label">${esc(c.name)}</span>
+      </div>
+    `;
+  }).join('');
+
+  let donutStops = '';
+  let cumulative = 0;
+  if (totalAssets > 0) {
+    const stops = [];
+    cats.forEach(c => {
+      const start = cumulative;
+      cumulative += (c.value / totalAssets) * 100;
+      stops.push(`${esc(c.color)} ${start.toFixed(2)}% ${cumulative.toFixed(2)}%`);
+    });
+    donutStops = stops.join(', ');
+  } else {
+    donutStops = '#e5eaf1 0% 100%';
+  }
+
+  const tableRows = DATA.assets.map(a => {
+    const cat = DATA.categories.find(c => c.id === a.cat);
+    return `
+      <tr>
+        <td>${esc(a.name)}</td>
+        <td>${esc(cat?.name || a.cat)}</td>
+        <td>${conv(a.value)}</td>
+        <td>${esc(a.owner || 'Self')}</td>
+        <td class="positive">Active</td>
+      </tr>
+    `;
+  }).join('');
+
+  const main = document.getElementById('mainContent');
+
+  main.innerHTML = `
+    <div class="new-dashboard">
+      ${!authUser ? `
+        <div class="wa-card p-3 mb-4 flex items-center justify-between gap-3 border-[#25D366]">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#25D366]"></span>
+            <div>
+              <p class="text-xs font-bold">Demo Mode</p>
+              <p class="text-[10px] text-slate-400">Edit the sample values to explore WealthApp</p>
+            </div>
+          </div>
+          <button onclick="showRegistration()" class="text-xs font-bold text-[#128C7E]">Register</button>
+        </div>
+      ` : ''}
+
+      <div class="welcome">
+        <h1>${authUser?.name ? 'Welcome, ' + esc(authUser.name) : 'Wealth Dashboard'}</h1>
+        <p>Track your net worth, investments, property and financial goals.</p>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="metric-label">Total Net Worth</div>
+          <div class="metric-value">${conv(t.net)}</div>
+          <div class="metric-sub positive">↑ Assets minus liabilities</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Total Assets</div>
+          <div class="metric-value">${conv(t.assets)}</div>
+          <div class="metric-sub">All categories combined</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Total Liabilities</div>
+          <div class="metric-value negative">${conv(t.liabilities)}</div>
+          <div class="metric-sub negative">Loans & EMIs</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Monthly Surplus</div>
+          <div class="metric-value">${conv(t.surplus)}</div>
+          <div class="metric-sub ${t.surplus >= 0 ? 'positive' : 'negative'}">${t.surplus >= 0 ? '▲ Income exceeds expenses' : '▼ Deficit'}</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Category Breakdown</div>
+            <button class="card-action" onclick="render('wealth')">Manage</button>
+          </div>
+          <div class="chart">
+            ${barChartHtml || '<p class="text-sm text-slate-400 w-full text-center">No asset data</p>'}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Asset Allocation</div>
+          </div>
+          <div class="allocation-layout">
+            <div class="donut" style="background: conic-gradient(${donutStops})">
+              <div class="donut-inner">
+                <div>
+                  <strong>${cats.length}</strong>
+                  <span>Categories</span>
+                </div>
+              </div>
+            </div>
+            <div class="legend">
+              ${cats.map(c => `
+                <div class="legend-row">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:${esc(c.color)}"></span>
+                    ${esc(c.name)}
+                  </div>
+                  <strong>${pct(c.value, totalAssets)}%</strong>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="card-header" style="padding:20px 20px 0">
+          <div class="card-title">Portfolio Summary</div>
+          <button class="card-action" onclick="render('wealth')">View all</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th>Category</th>
+                <th>Value</th>
+                <th>Owner</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px">No assets yet. Add some from the Wealth section.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-4 wa-card p-4 border-l-4 border-[#25D366]">
+        <p class="text-sm font-medium mb-1">💡 Smart Suggestion</p>
+        ${smartTip(t)}
+      </div>
+    </div>
+  `;
+
+  lucide.createIcons();
+}
+
+/* =========================================================
+   WEALTH / EDIT
+   ========================================================= */
+
+function renderWealth(){
+
+  const t =
+    totals();
+
+
+  document.getElementById(
+    'mainContent'
+  ).innerHTML = `
+
+    ${
+      !authUser
+
+      ?
+
+      `
+
+        <div class="wa-card p-3 mb-4 border-[#25D366]">
+
+          <div class="flex items-center justify-between gap-3">
+
+            <div>
+
+              <p class="text-xs font-bold">
+                Editing Demo Wealth
+              </p>
+
+              <p class="text-[10px] text-slate-400">
+                Change any value and see the dashboard update.
+              </p>
+
+            </div>
+
+
+            <button
+              onclick="showRegistration()"
+              class="text-xs font-bold text-[#128C7E]"
+            >
+              Register
+            </button>
+
+          </div>
+
+        </div>
+
+      `
+
+      : ''
+
+    }
+
+
+    <div class="flex items-center justify-between mb-4">
+
+      <div>
+
+        <h2 class="text-lg font-bold">
+          All Assets
+        </h2>
+
+        <p class="text-xs text-slate-400">
+          ${DATA.assets.length}
+          assets •
+          ${conv(t.assets)}
+        </p>
+
+      </div>
+
+
+      <button
+        onclick="openAssetModal()"
+        class="text-sm font-semibold text-[#128C7E] flex items-center gap-1"
+      >
+
+        <i
+          data-lucide="plus"
+          class="w-4 h-4"
+        ></i>
+
+        Add
+
+      </button>
+
+    </div>
+
+
+    ${
+      DATA.categories.map(
+        cat => {
+
+          const items =
+            DATA.assets.filter(
+              a => a.cat === cat.id
+            );
+
+
+          if(!items.length)
+            return '';
+
+
+          const catTotal =
+            items.reduce(
+              (s,a) =>
+                s + Number(a.value || 0),
+              0
+            );
+
+
+          return `
+
+            <div class="mb-5">
+
+              <div class="flex items-center gap-2 mb-2">
+
+                <div
+                  class="icon-box bg-slate-100 dark:bg-wa-700"
+                  style="width:28px;height:28px"
+                >
+                  ${iconHtml(
+                    cat,
+                    'w-3.5 h-3.5'
+                  )}
+                </div>
+
+
+                <h3 class="font-semibold text-sm">
+                  ${esc(cat.name)}
+                </h3>
+
+
+                <span class="text-xs text-slate-400 ml-auto">
+                  ${conv(catTotal)}
+                </span>
+
+              </div>
+
+
+              <div class="space-y-2">
+
+                ${
+                  items.map(
+                    a => `
+
+                      <div class="wa-card p-3.5">
+
+                        <div class="flex items-center justify-between gap-3">
+
+                          <div class="min-w-0">
+
+                            <p class="font-medium text-sm truncate">
+                              ${esc(a.name)}
+                            </p>
+
+
+                            <p class="text-xs text-slate-400 truncate">
+
+                              ${
+                                esc(
+                                  [
+                                    a.location,
+                                    a.owner,
+                                    a.weight,
+                                    a.rate
+                                      ? a.rate + '%'
+                                      : a.note
+                                  ]
+                                  .filter(Boolean)
+                                  .join(' • ')
+                                )
+                              }
+
+                            </p>
+
+                          </div>
+
+
+                          <div class="flex items-center gap-2">
+
+                            <p class="font-semibold text-sm whitespace-nowrap">
+                              ${conv(a.value)}
+                            </p>
+
+
+                            <button
+                              onclick="openAssetModal('${a.id}')"
+                              class="p-2 rounded-lg bg-slate-100 dark:bg-wa-700"
+                              title="Edit"
+                            >
+
+                              <i
+                                data-lucide="pencil"
+                                class="w-3.5 h-3.5 text-slate-500"
+                              ></i>
+
+                            </button>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    `
+                  ).join('')
+                }
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      ).join('')
+    }
+
+
+    <!-- LIABILITIES -->
+
+    <div class="flex items-center justify-between mb-2 mt-6">
+
+      <h3 class="font-semibold text-sm text-red-500">
+        Liabilities
+      </h3>
+
+
+      <button
+        onclick="openLiabilityModal()"
+        class="text-xs font-semibold text-[#128C7E]"
+      >
+        + Add Loan
+      </button>
+
+    </div>
+
+
+    <div class="space-y-2">
+
+      ${
+        DATA.liabilities.map(
+          l => `
+
+            <div class="wa-card p-3.5 flex items-center justify-between">
+
+              <div class="min-w-0">
+
+                <p class="font-medium text-sm">
+                  ${esc(l.name)}
+                </p>
+
+
+                <p class="text-xs text-slate-400">
+
+                  EMI ${convFull(l.emi)}
+
+                  ${l.rate ? ' • ' + l.rate + '% p.a.' : ''}
+
+                  ${
+                    l.owner
+                      ? ' • ' + esc(l.owner)
+                      : ''
+                  }
+
+                </p>
+
+              </div>
+
+
+              <div class="flex items-center gap-2">
+
+                <p class="font-semibold text-sm text-red-500">
+                  ${conv(l.outstanding)}
+                </p>
+
+
+                <button
+                  onclick="openLiabilityModal('${l.id}')"
+                  class="p-2 rounded-lg bg-slate-100 dark:bg-wa-700"
+                >
+
+                  <i
+                    data-lucide="pencil"
+                    class="w-3.5 h-3.5 text-slate-500"
+                  ></i>
+
+                </button>
+
+              </div>
+
+            </div>
+
+          `
+        ).join('')
+      }
+
+    </div>
+
+
+    <!-- CASHFLOW -->
+
+    <div class="mt-6 wa-card p-4">
+
+      <h3 class="font-semibold text-sm mb-2">
+        Income & Expenses
+      </h3>
+
+
+      <button
+        onclick="openCashflowModal('income')"
+        class="w-full text-left py-2 flex items-center gap-2 border-b border-slate-100 dark:border-wa-700"
+      >
+
+        <i
+          data-lucide="arrow-down-circle"
+          class="w-4 h-4 text-emerald-500"
+        ></i>
+
+        <span class="text-sm">
+          Manage Income
+        </span>
+
+        <i
+          data-lucide="chevron-right"
+          class="w-4 h-4 ml-auto text-slate-400"
+        ></i>
+
+      </button>
+
+
+      <button
+        onclick="openCashflowModal('expense')"
+        class="w-full text-left py-2 flex items-center gap-2"
+      >
+
+        <i
+          data-lucide="arrow-up-circle"
+          class="w-4 h-4 text-red-500"
+        ></i>
+
+        <span class="text-sm">
+          Manage Expenses
+        </span>
+
+        <i
+          data-lucide="chevron-right"
+          class="w-4 h-4 ml-auto text-slate-400"
+        ></i>
+
+      </button>
+
+    </div>
+
+  `;
+
+
+  lucide.createIcons();
+
+}
+
+
+/* =========================================================
+   MODAL SYSTEM
+   ========================================================= */
+
+function modal(
+  title,
+  body,
+  footer=''
+){
+
+  document.getElementById(
+    'modalRoot'
+  ).innerHTML = `
+
+    <div
+      class="fixed inset-0 z-[90] modal-backdrop flex items-center justify-center p-4"
+      onclick="if(event.target===this)closeModal()"
+    >
+
+      <div class="modal-panel w-full max-w-lg rounded-2xl bg-white dark:bg-wa-800 shadow-2xl">
+
+        <div class="sticky top-0 z-10 px-5 py-4 border-b border-slate-100 dark:border-wa-700 bg-white dark:bg-wa-800 flex items-center justify-between">
+
+          <h3 class="font-bold">
+            ${esc(title)}
+          </h3>
+
+
+          <button
+            onclick="closeModal()"
+            class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-wa-700"
+          >
+
+            <i
+              data-lucide="x"
+              class="w-5 h-5"
+            ></i>
+
+          </button>
+
+        </div>
+
+
+        <div class="p-5">
+          ${body}
+        </div>
+
+
+        ${
+          footer
+
+          ?
+
+          `
+
+            <div class="px-5 py-4 border-t border-slate-100 dark:border-wa-700 flex gap-2">
+
+              ${footer}
+
+            </div>
+
+          `
+
+          : ''
+
+        }
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  lucide.createIcons();
+
+}
+
+
+function closeModal(){
+
+  document.getElementById(
+    'modalRoot'
+  ).innerHTML = '';
+
+  editing = null;
+
+}
+
+
+/* ---------------- FIELD ---------------- */
+
+function field(
+  label,
+  id,
+  value='',
+  type='text',
+  extra=''
+){
+
+  return `
+
+    <label class="block mb-3">
+
+      <span class="text-xs font-semibold text-slate-500">
+        ${esc(label)}
+      </span>
+
+
+      <input
+        id="${id}"
+        type="${type}"
+        value="${esc(value)}"
+        ${extra}
+        class="mt-1 w-full rounded-xl border border-slate-200 dark:border-wa-700 bg-white dark:bg-wa-900 px-3 py-2.5 outline-none focus:ring-2 focus:ring-[#25D366]"
+      >
+
+    </label>
+
+  `;
+
+}
+
+
+/* ---------------- CATEGORY OPTIONS ---------------- */
+
+function categoryOptions(selected){
+
+  return DATA.categories
+    .map(
+      c => `
+
+        <option
+          value="${esc(c.id)}"
+          ${c.id === selected ? 'selected' : ''}
+        >
+          ${esc(c.name)}
+        </option>
+
+      `
+    )
+    .join('');
+
+}
+
+
+/* =========================================================
+   ASSET MODAL
+   ========================================================= */
+
+function openAssetModal(id=null){
+
+  const a =
+    id
+      ? DATA.assets.find(
+          x => x.id === id
+        )
+      : null;
+
+
+  editing = {
+    type:'asset',
+    id
+  };
+
+
+  modal(
+
+    a
+      ? 'Edit Asset'
+      : 'Add Asset',
+
+    `
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-3">
+
+        ${field(
+          'Asset / Property Name',
+          'mName',
+          a?.name || ''
+        )}
+
+
+        <label class="block mb-3">
+
+          <span class="text-xs font-semibold text-slate-500">
+            Category
+          </span>
+
+
+          <select
+            id="mCat"
+            class="mt-1 w-full rounded-xl border border-slate-200 dark:border-wa-700 bg-white dark:bg-wa-900 px-3 py-2.5 outline-none"
+          >
+
+            ${categoryOptions(
+              a?.cat ||
+              DATA.categories[0]?.id
+            )}
+
+          </select>
+
+        </label>
+
+
+        ${field(
+          'Current Value (INR)',
+          'mValue',
+          a?.value || 0,
+          'number',
+          'min="0" step="0.01"'
+        )}
+
+
+        ${field(
+          'Owner',
+          'mOwner',
+          a?.owner || 'Self'
+        )}
+
+
+        ${field(
+          'Location',
+          'mLocation',
+          a?.location || ''
+        )}
+
+
+        ${field(
+          'Interest / Rate %',
+          'mRate',
+          a?.rate || '',
+          'number',
+          'min="0" step="0.01"'
+        )}
+
+
+        ${field(
+          'Weight',
+          'mWeight',
+          a?.weight || ''
+        )}
+
+
+        ${field(
+          'Notes',
+          'mNote',
+          a?.note || ''
+        )}
+
+      </div>
+
+
+      <p class="text-[11px] text-slate-400">
+
+        Values are stored in INR internally
+        and converted on the dashboard
+        when you change currency.
+
+      </p>
+
+    `,
+
+
+    `
+
+      ${
+        a
+
+        ?
+
+        `
+
+          <button
+            onclick="deleteAsset('${a.id}')"
+            class="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 font-semibold text-sm mr-auto"
+          >
+            Delete
+          </button>
+
+        `
+
+        : ''
+
+      }
+
+
+      <button
+        onclick="closeModal()"
+        class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-sm font-semibold"
+      >
+        Cancel
+      </button>
+
+
+      <button
+        onclick="saveAsset()"
+        class="px-5 py-2.5 rounded-xl bg-[#25D366] text-white text-sm font-semibold"
+      >
+        Save
+      </button>
+
+    `
+
+  );
+
+}
+
+
+/* ---------------- SAVE ASSET ---------------- */
+
+function saveAsset(){
+
+  const obj = {
+
+    id:
+      editing.id ||
+      'a' + Date.now(),
+
+    cat:
+      document.getElementById(
+        'mCat'
+      ).value,
+
+    name:
+      document.getElementById(
+        'mName'
+      ).value.trim() ||
+      'Unnamed Asset',
+
+    value:
+      Number(
+        document.getElementById(
+          'mValue'
+        ).value
+      ) || 0,
+
+    owner:
+      document.getElementById(
+        'mOwner'
+      ).value.trim(),
+
+    location:
+      document.getElementById(
+        'mLocation'
+      ).value.trim(),
+
+    rate:
+      Number(
+        document.getElementById(
+          'mRate'
+        ).value
+      ) || undefined,
+
+    weight:
+      document.getElementById(
+        'mWeight'
+      ).value.trim(),
+
+    note:
+      document.getElementById(
+        'mNote'
+      ).value.trim()
+
+  };
+
+
+  if(editing.id){
+
+    const i =
+      DATA.assets.findIndex(
+        a => a.id === editing.id
+      );
+
+
+    if(i >= 0)
+      DATA.assets[i] = obj;
+
+  }else{
+
+    DATA.assets.push(obj);
+
+  }
+
+
+  saveData();
+
+  closeModal();
+
+  render('wealth');
+
+  showToast(
+    'Asset saved'
+  );
+
+}
+
+
+/* ---------------- DELETE ASSET ---------------- */
+
+function deleteAsset(id){
+
+  if(
+    !confirm(
+      'Delete this asset?'
+    )
+  ) return;
+
+
+  DATA.assets =
+    DATA.assets.filter(
+      a => a.id !== id
+    );
+
+
+  saveData();
+
+  closeModal();
+
+  render('wealth');
+
+  showToast(
+    'Asset deleted'
+  );
+
+}
+
+
+/* =========================================================
+   LIABILITY
+   ========================================================= */
+
+function openLiabilityModal(id=null){
+
+  const l =
+    id
+      ? DATA.liabilities.find(
+          x => x.id === id
+        )
+      : null;
+
+
+  editing = {
+    type:'liability',
+    id
+  };
+
+
+  modal(
+
+    l
+      ? 'Edit Liability'
+      : 'Add Liability',
+
+    `
+
+      ${field(
+        'Loan Name',
+        'mLName',
+        l?.name || ''
+      )}
+
+
+      ${field(
+        'Outstanding Amount (INR)',
+        'mOutstanding',
+        l?.outstanding || 0,
+        'number',
+        'min="0"'
+      )}
+
+
+      ${field(
+        'Monthly EMI (INR)',
+        'mEmi',
+        l?.emi || 0,
+        'number',
+        'min="0"'
+      )}
+
+
+      ${field(
+        'Interest Rate %',
+        'mLRate',
+        l?.rate || '',
+        'number',
+        'min="0" step="0.01"'
+      )}
+
+
+      ${field(
+        'Owner',
+        'mLOwner',
+        l?.owner || 'Self'
+      )}
+
+
+      ${field(
+        'Notes',
+        'mLNote',
+        l?.note || ''
+      )}
+
+    `,
+
+
+    `
+
+      ${
+        l
+
+        ?
+
+        `
+
+          <button
+            onclick="deleteLiability('${l.id}')"
+            class="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 font-semibold text-sm mr-auto"
+          >
+            Delete
+          </button>
+
+        `
+
+        : ''
+
+      }
+
+
+      <button
+        onclick="closeModal()"
+        class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-sm font-semibold"
+      >
+        Cancel
+      </button>
+
+
+      <button
+        onclick="saveLiability()"
+        class="px-5 py-2.5 rounded-xl bg-[#25D366] text-white text-sm font-semibold"
+      >
+        Save
+      </button>
+
+    `
+
+  );
+
+}
+
+
+/* ---------------- SAVE LIABILITY ---------------- */
+
+function saveLiability(){
+
+  const obj = {
+
+    id:
+      editing.id ||
+      'l' + Date.now(),
+
+    name:
+      document.getElementById(
+        'mLName'
+      ).value.trim() ||
+      'Loan',
+
+    outstanding:
+      Number(
+        document.getElementById(
+          'mOutstanding'
+        ).value
+      ) || 0,
+
+    emi:
+      Number(
+        document.getElementById(
+          'mEmi'
+        ).value
+      ) || 0,
+
+    rate:
+      Number(
+        document.getElementById(
+          'mLRate'
+        ).value
+      ) || 0,
+
+    owner:
+      document.getElementById(
+        'mLOwner'
+      ).value.trim(),
+
+    note:
+      document.getElementById(
+        'mLNote'
+      ).value.trim()
+
+  };
+
+
+  if(editing.id){
+
+    const i =
+      DATA.liabilities.findIndex(
+        l => l.id === editing.id
+      );
+
+
+    if(i >= 0)
+      DATA.liabilities[i] = obj;
+
+  }else{
+
+    DATA.liabilities.push(obj);
+
+  }
+
+
+  saveData();
+
+  closeModal();
+
+  render('wealth');
+
+  showToast(
+    'Liability saved'
+  );
+
+}
+
+
+/* ---------------- DELETE LIABILITY ---------------- */
+
+function deleteLiability(id){
+
+  if(
+    !confirm(
+      'Delete this liability?'
+    )
+  ) return;
+
+
+  DATA.liabilities =
+    DATA.liabilities.filter(
+      l => l.id !== id
+    );
+
+
+  saveData();
+
+  closeModal();
+
+  render('wealth');
+
+  showToast(
+    'Liability deleted'
+  );
+
+}
+
+
+/* =========================================================
+   CASHFLOW
+   ========================================================= */
+
+function openCashflowModal(kind){
+
+  const list =
+    kind === 'income'
+      ? DATA.income
+      : DATA.expenses;
+
+
+  const title =
+    kind === 'income'
+      ? 'Manage Income'
+      : 'Manage Expenses';
+
+
+  const rows =
+    list.map(
+      x => `
+
+        <div class="wa-card p-3 flex items-center justify-between gap-2">
+
+          <div class="min-w-0">
+
+            <p class="font-medium text-sm truncate">
+              ${esc(x.name)}
+            </p>
+
+            <p class="text-xs text-slate-400">
+              ${esc(x.cat || 'Other')}
+            </p>
+
+          </div>
+
+
+          <div class="flex items-center gap-2">
+
+            <b class="text-sm">
+              ${convFull(x.amount)}
+            </b>
+
+
+            <button
+              onclick="openFlowEdit('${kind}','${x.id}')"
+              class="p-2 rounded-lg bg-slate-100 dark:bg-wa-700"
+            >
+
+              <i
+                data-lucide="pencil"
+                class="w-3.5 h-3.5"
+              ></i>
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `
+    ).join('');
+
+
+  modal(
+
+    title,
+
+    `
+
+      <div class="space-y-2">
+
+        ${
+          rows ||
+          '<p class="text-sm text-slate-400">No entries yet.</p>'
+        }
+
+      </div>
+
+    `,
+
+
+    `
+
+      <button
+        onclick="openFlowEdit('${kind}')"
+        class="px-4 py-2.5 rounded-xl bg-[#25D366] text-white text-sm font-semibold mr-auto"
+      >
+        + Add
+      </button>
+
+
+      <button
+        onclick="closeModal()"
+        class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-sm font-semibold"
+      >
+        Close
+      </button>
+
+    `
+
+  );
+
+}
+
+
+/* ---------------- FLOW EDIT ---------------- */
+
+function openFlowEdit(
+  kind,
+  id=null
+){
+
+  const list =
+    kind === 'income'
+      ? DATA.income
+      : DATA.expenses;
+
+
+  const x =
+    id
+      ? list.find(
+          v => v.id === id
+        )
+      : null;
+
+
+  editing = {
+    type:kind,
+    id
+  };
+
+
+  modal(
+
+    x
+
+      ?
+
+      (
+        kind === 'income'
+          ? 'Edit Income'
+          : 'Edit Expense'
+      )
+
+      :
+
+      (
+        kind === 'income'
+          ? 'Add Income'
+          : 'Add Expense'
+      ),
+
+
+    `
+
+      ${field(
+        'Name',
+        'mFName',
+        x?.name || ''
+      )}
+
+
+      ${field(
+        'Amount (INR)',
+        'mFAmount',
+        x?.amount || 0,
+        'number',
+        'min="0" step="0.01"'
+      )}
+
+
+      ${field(
+        'Category',
+        'mFCat',
+        x?.cat || 'Other'
+      )}
+
+    `,
+
+
+    `
+
+      ${
+        x
+
+        ?
+
+        `
+
+          <button
+            onclick="deleteFlow('${kind}','${x.id}')"
+            class="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 font-semibold text-sm mr-auto"
+          >
+            Delete
+          </button>
+
+        `
+
+        : ''
+
+      }
+
+
+      <button
+        onclick="openCashflowModal('${kind}')"
+        class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-sm font-semibold"
+      >
+        Back
+      </button>
+
+
+      <button
+        onclick="saveFlow('${kind}')"
+        class="px-5 py-2.5 rounded-xl bg-[#25D366] text-white text-sm font-semibold"
+      >
+        Save
+      </button>
+
+    `
+
+  );
+
+}
+
+
+/* ---------------- SAVE FLOW ---------------- */
+
+function saveFlow(kind){
+
+  const list =
+    kind === 'income'
+      ? DATA.income
+      : DATA.expenses;
+
+
+  const obj = {
+
+    id:
+      editing.id ||
+
+      (
+        kind === 'income'
+          ? 'i'
+          : 'e'
+      ) +
+
+      Date.now(),
+
+    name:
+      document.getElementById(
+        'mFName'
+      ).value.trim() ||
+      'Entry',
+
+    amount:
+      Number(
+        document.getElementById(
+          'mFAmount'
+        ).value
+      ) || 0,
+
+    cat:
+      document.getElementById(
+        'mFCat'
+      ).value.trim() ||
+      'Other'
+
+  };
+
+
+  if(editing.id){
+
+    const i =
+      list.findIndex(
+        x => x.id === editing.id
+      );
+
+
+    if(i >= 0)
+      list[i] = obj;
+
+  }else{
+
+    list.push(obj);
+
+  }
+
+
+  saveData();
+
+  closeModal();
+
+  render('wealth');
+
+  showToast(
+    'Saved'
+  );
+
+}
+
+
+/* ---------------- DELETE FLOW ---------------- */
+
+function deleteFlow(
+  kind,
+  id
+){
+
+  if(
+    !confirm(
+      'Delete this entry?'
+    )
+  ) return;
+
+
+  if(kind === 'income'){
+
+    DATA.income =
+      DATA.income.filter(
+        x => x.id !== id
+      );
+
+  }else{
+
+    DATA.expenses =
+      DATA.expenses.filter(
+        x => x.id !== id
+      );
+
+  }
+
+
+  saveData();
+
+  closeModal();
+
+  render('wealth');
+
+  showToast(
+    'Deleted'
+  );
+
+}
+
+
+/* =========================================================
+   ADD / CATEGORIES
+   ========================================================= */
+
+const BUILTIN_ICONS = [
+
+  'building-2',
+  'home',
+  'landmark',
+  'banknote',
+  'wallet',
+  'piggy-bank',
+  'trending-up',
+  'chart-no-axes-combined',
+  'gem',
+  'coins',
+  'car',
+  'bike',
+  'plane',
+  'briefcase',
+  'store',
+  'shopping-bag',
+  'receipt',
+  'credit-card',
+  'arrow-down-circle',
+  'arrow-up-circle',
+  'graduation-cap',
+  'heart-pulse',
+  'fuel',
+  'utensils',
+  'coffee',
+  'smartphone',
+  'laptop',
+  'camera',
+  'watch',
+  'key-round',
+  'house',
+  'map-pin',
+  'globe',
+  'shield-check',
+  'circle-dollar-sign'
+
+];
+
+
+function renderAdd(){
+
+  document.getElementById(
+    'mainContent'
+  ).innerHTML = `
+
+    <div class="flex items-center justify-between mb-1">
+
+      <h2 class="text-lg font-bold">
+        Add New
+      </h2>
+
+
+      <button
+        onclick="openCategoryModal()"
+        class="text-sm font-semibold text-[#128C7E]"
+      >
+        Manage Categories
+      </button>
+
+    </div>
+
+
+    <p class="text-sm text-slate-500 mb-4">
+      Choose an asset category or manage your own categories.
+    </p>
+
+
+    <div class="space-y-2.5">
+
+      ${
+        DATA.categories.map(
+          c => `
+
+            <button
+              onclick="openAssetModal(null);setTimeout(()=>document.getElementById('mCat').value='${esc(c.id)}',20)"
+              class="wa-card p-4 w-full flex items-center gap-3 text-left"
+            >
+
+              <div class="icon-box bg-[#E7F8F2] text-[#128C7E]">
+                ${iconHtml(c)}
+              </div>
+
+
+              <div>
+
+                <p class="font-semibold text-sm">
+                  ${esc(c.name)}
+                </p>
+
+                <p class="text-xs text-slate-400">
+                  Add asset to this category
+                </p>
+
+              </div>
+
+
+              <i
+                data-lucide="chevron-right"
+                class="w-4 h-4 text-slate-300 ml-auto"
+              ></i>
+
+            </button>
+
+          `
+        ).join('')
+      }
+
+    </div>
+
+  `;
+
+
+  lucide.createIcons();
+
+}
+
+
+/* ---------------- CATEGORY MODAL ---------------- */
+
+function openCategoryModal(){
+
+  modal(
+
+    'Custom Categories',
+
+    `
+
+      <p class="text-xs text-slate-500 mb-3">
+
+        Use the built-in Lucide icons
+        or upload your own image/icon
+        from your phone or laptop.
+
+      </p>
+
+
+      <div class="space-y-2 mb-4">
+
+        ${
+          DATA.categories.map(
+            c => `
+
+              <div class="wa-card p-3 flex items-center gap-3">
+
+                <div class="icon-box bg-slate-100 dark:bg-wa-700">
+                  ${iconHtml(c)}
+                </div>
+
+
+                <span class="font-medium text-sm flex-1">
+                  ${esc(c.name)}
+                </span>
+
+
+                <button
+                  onclick="openCategoryEdit('${c.id}')"
+                  class="p-2 rounded-lg bg-slate-100 dark:bg-wa-700"
+                >
+
+                  <i
+                    data-lucide="pencil"
+                    class="w-4 h-4"
+                  ></i>
+
+                </button>
+
+
+                <button
+                  onclick="deleteCategory('${c.id}')"
+                  class="p-2 rounded-lg bg-red-50 text-red-500"
+                >
+
+                  <i
+                    data-lucide="trash-2"
+                    class="w-4 h-4"
+                  ></i>
+
+                </button>
+
+              </div>
+
+            `
+          ).join('')
+        }
+
+      </div>
+
+    `,
+
+
+    `
+
+      <button
+        onclick="openCategoryEdit()"
+        class="px-4 py-2.5 rounded-xl bg-[#25D366] text-white text-sm font-semibold mr-auto"
+      >
+        + Custom Category
+      </button>
+
+
+      <button
+        onclick="closeModal();render('add')"
+        class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-sm font-semibold"
+      >
+        Done
+      </button>
+
+    `
+
+  );
+
+}
+
+
+/* ---------------- CATEGORY EDIT ---------------- */
+
+function openCategoryEdit(id=null){
+
+  const c =
+    id
+      ? DATA.categories.find(
+          x => x.id === id
+        )
+      : null;
+
+
+  editing = {
+    type:'category',
+    id
+  };
+
+
+  modal(
+
+    c
+      ? 'Edit Category'
+      : 'New Custom Category',
+
+
+    `
+
+      ${field(
+        'Category Name',
+        'mCName',
+        c?.name || ''
+      )}
+
+
+      <label class="block mb-3">
+
+        <span class="text-xs font-semibold text-slate-500">
+          Built-in Icon
+        </span>
+
+
+        <select
+          id="mCIcon"
+          class="mt-1 w-full rounded-xl border border-slate-200 dark:border-wa-700 bg-white dark:bg-wa-900 px-3 py-2.5"
+        >
+
+          ${
+            BUILTIN_ICONS.map(
+              i => `
+
+                <option
+                  value="${i}"
+                  ${
+                    i ===
+                    (c?.icon || 'circle')
+                      ? 'selected'
+                      : ''
+                  }
+                >
+                  ${i}
+                </option>
+
+              `
+            ).join('')
+          }
+
+        </select>
+
+      </label>
+
+
+      <label class="block mb-3">
+
+        <span class="text-xs font-semibold text-slate-500">
+          Chart Color
+        </span>
+
+
+        <input
+          id="mCColor"
+          type="color"
+          value="${c?.color || '#128C7E'}"
+          class="mt-1 w-full h-11 rounded-xl border border-slate-200 dark:border-wa-700 bg-white dark:bg-wa-900 px-1"
+        >
+
+      </label>
+
+
+      <label class="block mb-3">
+
+        <span class="text-xs font-semibold text-slate-500">
+          Upload Custom Icon / Image
+        </span>
+
+
+        <input
+          id="mCImage"
+          type="file"
+          accept="image/*"
+          class="mt-1 w-full text-sm"
+        >
+
+      </label>
+
+
+      ${
+        c?.image
+
+        ?
+
+        `
+
+          <div class="mb-3">
+
+            <p class="text-xs text-slate-400 mb-1">
+              Current custom image
+            </p>
+
+
+            <img
+              src="${c.image}"
+              class="w-14 h-14 object-cover rounded-xl border"
+            >
+
+          </div>
+
+        `
+
+        : ''
+
+      }
+
+
+      <p class="text-[11px] text-slate-400">
+
+        If an image is uploaded,
+        it will be used instead of
+        the Lucide icon.
+
+        The image is stored locally
+        in this browser.
+
+      </p>
+
+    `,
+
+
+    `
+
+      <button
+        onclick="openCategoryModal()"
+        class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-sm font-semibold mr-auto"
+      >
+        Back
+      </button>
+
+
+      <button
+        onclick="saveCategory()"
+        class="px-5 py-2.5 rounded-xl bg-[#25D366] text-white text-sm font-semibold"
+      >
+        Save
+      </button>
+
+    `
+
+  );
+
+}
+
+
+/* ---------------- SAVE CATEGORY ---------------- */
+
+function saveCategory(){
+
+  const name =
+    document.getElementById(
+      'mCName'
+    ).value.trim() ||
+    'Custom Category';
+
+
+  const icon =
+    document.getElementById(
+      'mCIcon'
+    ).value;
+
+
+  const color =
+    document.getElementById(
+      'mCColor'
+    ).value;
+
+
+  const file =
+    document.getElementById(
+      'mCImage'
+    ).files[0];
+
+
+  const finish =
+    image => {
+
+      const obj = {
+
+        id:
+          editing.id ||
+          'cat' + Date.now(),
+
+        name,
+
+        icon,
+
+        color,
+
+        image:
+          image || null
+
+      };
+
+
+      if(editing.id){
+
+        const i =
+          DATA.categories.findIndex(
+            c =>
+              c.id ===
+              editing.id
+          );
+
+
+        if(i >= 0){
+
+          if(
+            !file &&
+            DATA.categories[i].image
+          ){
+
+            obj.image =
+              DATA.categories[i].image;
+
+          }
+
+
+          DATA.categories[i] =
+            obj;
+
+        }
+
+      }else{
+
+        DATA.categories.push(obj);
+
+      }
+
+
+      saveData();
+
+      openCategoryModal();
+
+      showToast(
+        'Category saved'
+      );
+
+    };
+
+
+  if(file){
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      () => finish(
+        reader.result
+      );
+
+
+    reader.readAsDataURL(
+      file
+    );
+
+  }else{
+
+    finish(null);
+
+  }
+
+}
+
+
+/* ---------------- DELETE CATEGORY ---------------- */
+
+function deleteCategory(id){
+
+  const used =
+    DATA.assets.some(
+      a => a.cat === id
+    );
+
+
+  if(used){
+
+    showToast(
+      'Category is in use by assets'
+    );
+
+    return;
+
+  }
+
+
+  if(
+    DATA.categories.length <= 1
+  ){
+
+    showToast(
+      'Keep at least one category'
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !confirm(
+      'Delete this category?'
+    )
+  ) return;
+
+
+  DATA.categories =
+    DATA.categories.filter(
+      c => c.id !== id
+    );
+
+
+  saveData();
+
+  openCategoryModal();
+
+  showToast(
+    'Category deleted'
+  );
+
+}
+
+
+/* =========================================================
+   CHAT
+   ========================================================= */
+
+function renderChat(){
+
+  document.getElementById(
+    'mainContent'
+  ).innerHTML = `
+
+    <div class="flex flex-col h-[calc(100vh-160px)]">
+
+      <div class="mb-3">
+
+        <h2 class="text-lg font-bold">
+          Wealth Assistant
+        </h2>
+
+
+        <p class="text-xs text-slate-500">
+          Paste SMS / bank text or use voice
+        </p>
+
+      </div>
+
+
+      <div
+        id="chatBox"
+        class="flex-1 overflow-y-auto space-y-3 mb-3 pr-1"
+      >
+
+        <div class="chat-bubble chat-bot">
+
+          Hi! I can help you update WealthApp.
+
+          • Paste any credit/debit SMS or bank statement
+          • Or speak: “Add grocery expense 2500”
+          • “Update gold to 3.5 lakh”
+          • “Show my net worth”
+
+        </div>
+
+
+        ${
+          chatHistory.map(
+            m => `
+
+              <div
+                class="chat-bubble ${
+                  m.role === 'user'
+                    ? 'chat-user'
+                    : 'chat-bot'
+                }"
+              >
+                ${esc(m.text)}
+              </div>
+
+            `
+          ).join('')
+        }
+
+      </div>
+
+
+      <div class="space-y-2">
+
+        <textarea
+          id="chatInput"
+          rows="2"
+          placeholder="Paste SMS / statement or type command..."
+          class="w-full rounded-xl border border-slate-200 dark:border-wa-700 bg-white dark:bg-wa-800 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#25D366]"
+        ></textarea>
+
+
+        <div class="flex gap-2">
+
+          <button
+            onclick="startVoice()"
+            class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-wa-700 text-sm font-medium flex items-center justify-center gap-2"
+          >
+
+            <i
+              data-lucide="mic"
+              class="w-4 h-4"
+            ></i>
+
+            Voice
+
+          </button>
+
+
+          <button
+            onclick="sendChat()"
+            class="flex-1 py-2.5 rounded-xl bg-[#25D366] text-white text-sm font-semibold flex items-center justify-center gap-2"
+          >
+
+            <i
+              data-lucide="send"
+              class="w-4 h-4"
+            ></i>
+
+            Send
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  lucide.createIcons();
+
+
+  const box =
+    document.getElementById(
+      'chatBox'
+    );
+
+
+  if(box)
+    box.scrollTop =
+      box.scrollHeight;
+
+}
+
+
+/* ---------------- CHAT HELPERS ---------------- */
+
+function addChat(
+  role,
+  text
+){
+
+  chatHistory.push({
+    role,
+    text
+  });
+
+
+  if(
+    currentView === 'chat'
+  ){
+
+    renderChat();
+
+  }
+
+}
+
+
+function sendChat(){
+
+  const input =
+    document.getElementById(
+      'chatInput'
+    );
+
+
+  const text =
+    (
+      input?.value || ''
+    ).trim();
+
+
+  if(!text)
+    return;
+
+
+  addChat(
+    'user',
+    text
+  );
+
+
+  input.value = '';
+
+
+  processCommand(
+    text
+  );
+
+}
+
+
+function startVoice(){
+
+  if(!recognition){
+
+    showToast(
+      'Voice not supported on this browser'
+    );
+
+    return;
+
+  }
+
+
+  showToast(
+    'Listening... Speak now'
+  );
+
+
+  recognition.start();
+
+}
+
+
+/* ---------------- COMMAND PROCESSOR ---------------- */
+
+function processCommand(text){
+
+  const lower =
+    text.toLowerCase();
+
+
+  let reply = '';
+
+
+  const amountMatch =
+    text.match(
+      /(?:rs\.?|inr|₹|\$)?\s*([\d,]+(?:\.\d+)?)\s*(?:lakh|lac|l|cr|crore)?/i
+    );
+
+
+  let amount =
+    amountMatch
+      ? parseFloat(
+          amountMatch[1]
+            .replace(/,/g,'')
+        )
+      : null;
+
+
+  if(
+    amount &&
+    /lakh|lac\b|\bl\b/i.test(text)
+  ){
+
+    amount *= 100000;
+
+  }
+
+
+  if(
+    amount &&
+    /crore|\bcr\b/i.test(text)
+  ){
+
+    amount *= 10000000;
+
+  }
+
+
+  const isCredit =
+    /(?:credited|credit|received|cr\b|deposit)/i
+      .test(text);
+
+
+  const isDebit =
+    /(?:debited|debit|spent|paid|dr\b|withdrawn)/i
+      .test(text);
+
+
+  if(
+    isCredit &&
+    amount
+  ){
+
+    DATA.income.push({
+
+      id:
+        'i' + Date.now(),
+
+      name:
+        'SMS Credit',
+
+      amount,
+
+      cat:
+        'Other'
+
+    });
+
+
+    saveData();
+
+
+    reply =
+      `Detected credit of ${convFull(amount)}. Added to Income.`;
+
+  }
+
+
+  else if(
+    isDebit &&
+    amount
+  ){
+
+    let cat =
+      'Other';
+
+
+    if(
+      /grocery|supermarket|bigbasket|blinkit/i
+        .test(text)
+    ){
+
+      cat =
+        'Grocery';
+
+    }
+
+    else if(
+      /fuel|petrol|diesel/i
+        .test(text)
+    ){
+
+      cat =
+        'Transport';
+
+    }
+
+    else if(
+      /swiggy|zomato|restaurant|dining/i
+        .test(text)
+    ){
+
+      cat =
+        'Dining';
+
+    }
+
+    else if(
+      /amazon|flipkart|myntra|shopping/i
+        .test(text)
+    ){
+
+      cat =
+        'Shopping';
+
+    }
+
+
+    DATA.expenses.push({
+
+      id:
+        'e' + Date.now(),
+
+      name:
+        'SMS Debit',
+
+      amount,
+
+      cat
+
+    });
+
+
+    saveData();
+
+
+    reply =
+      `Detected debit of ${convFull(amount)} (${cat}). Added to Expenses.`;
+
+  }
+
+
+  else if(
+    /add.*(expense|spent)/i
+      .test(lower) &&
+    amount
+  ){
+
+    let cat =
+      'Other';
+
+
+    if(
+      /grocery/i.test(lower)
+    )
+      cat = 'Grocery';
+
+
+    if(
+      /fuel|petrol/i.test(lower)
+    )
+      cat = 'Transport';
+
+
+    if(
+      /food|dining|restaurant/i.test(lower)
+    )
+      cat = 'Dining';
+
+
+    DATA.expenses.push({
+
+      id:
+        'e' + Date.now(),
+
+      name:
+        'Voice Expense',
+
+      amount,
+
+      cat
+
+    });
+
+
+    saveData();
+
+
+    reply =
+      `Added expense of ${convFull(amount)} under ${cat}.`;
+
+  }
+
+
+  else if(
+    /add.*(income|salary|received)/i
+      .test(lower) &&
+    amount
+  ){
+
+    DATA.income.push({
+
+      id:
+        'i' + Date.now(),
+
+      name:
+        'Voice Income',
+
+      amount,
+
+      cat:
+        'Other'
+
+    });
+
+
+    saveData();
+
+
+    reply =
+      `Added income of ${convFull(amount)}.`;
+
+  }
+
+
+  else if(
+    /net worth|total wealth|my wealth/i
+      .test(lower)
+  ){
+
+    reply =
+      `Your current Net Worth is ${conv(totals().net)}.`;
+
+  }
+
+
+  else if(
+    /surplus|saving/i
+      .test(lower)
+  ){
+
+    reply =
+      `This month surplus is ${conv(totals().surplus)}.`;
+
+  }
+
+
+  else if(
+    /gold/i.test(lower) &&
+    amount
+  ){
+
+    const gold =
+      DATA.categories.find(
+        c => c.id === 'gold'
+      );
+
+
+    const item =
+      DATA.assets.find(
+        a => a.cat === 'gold'
+      );
+
+
+    if(item){
+
+      item.value =
+        amount;
+
+
+      saveData();
+
+
+      reply =
+        `Updated ${item.name} to ${conv(amount)}.`;
+
+    }
+
+    else if(gold){
+
+      DATA.assets.push({
+
+        id:
+          'a' + Date.now(),
+
+        cat:
+          'gold',
+
+        name:
+          'Gold',
+
+        value:
+          amount,
+
+        owner:
+          'Self'
+
+      });
+
+
+      saveData();
+
+
+      reply =
+        `Added Gold at ${conv(amount)}.`;
+
+    }
+
+  }
+
+
+  else{
+
+    reply =
+      `I understood: "${text}".
+
+Try:
+
+• Paste a bank SMS
+• “Add grocery expense 2500”
+• “Show my net worth”
+• “Update gold to 3.2 lakh”`;
+
+  }
+
+
+  setTimeout(
+    () => {
+
+      addChat(
+        'bot',
+        reply
+      );
+
+
+      showToast(
+        'Updated'
+      );
+
+
+      render(
+        currentView
+      );
+
+    },
+    350
+  );
+
+}
+
+
+/* =========================================================
+   MORE
+   ========================================================= */
+
+function renderMore(){
+
+  document.getElementById(
+    'mainContent'
+  ).innerHTML = `
+
+    <h2 class="text-lg font-bold mb-1">
+      More
+    </h2>
+
+
+    ${
+      authUser
+
+      ?
+
+      `<p class="text-xs text-slate-400 mb-4">
+        ${esc(authUser.name)}
+        •
+        ${esc(authUser.identifier)}
+      </p>`
+
+      :
+
+      `
+
+        <div class="wa-card p-3 mb-4 border-[#25D366]">
+
+          <div class="flex items-center justify-between gap-3">
+
+            <div>
+
+              <p class="text-xs font-bold">
+                Demo Mode
+              </p>
+
+              <p class="text-[10px] text-slate-400">
+                Explore and edit without registration.
+              </p>
+
+            </div>
+
+
+            <button
+              onclick="showRegistration()"
+              class="text-xs font-bold text-[#128C7E]"
+            >
+              Register
+            </button>
+
+          </div>
+
+        </div>
+
+      `
+
+    }
+
+
+    <div class="space-y-2">
+
+
+      <div
+        class="wa-card p-4 flex items-center gap-3"
+        onclick="render('chat')"
+      >
+
+        <i
+          data-lucide="message-circle"
+          class="w-5 h-5 text-[#128C7E]"
+        ></i>
+
+        <span class="font-medium text-sm">
+          Wealth Assistant (Chat + Voice)
+        </span>
+
+      </div>
+
+
+      <div
+        class="wa-card p-4 flex items-center gap-3"
+        onclick="render('wealth')"
+      >
+
+        <i
+          data-lucide="database"
+          class="w-5 h-5 text-[#128C7E]"
+        ></i>
+
+        <span class="font-medium text-sm">
+          Manage Wealth Data
+        </span>
+
+      </div>
+
+
+      <div
+        class="wa-card p-4 flex items-center gap-3"
+        onclick="render('add')"
+      >
+
+        <i
+          data-lucide="tags"
+          class="w-5 h-5 text-[#128C7E]"
+        ></i>
+
+        <span class="font-medium text-sm">
+          Custom Categories & Icons
+        </span>
+
+      </div>
+
+
+      ${
+        authUser
+
+        ?
+
+        `
+
+          <div
+            class="wa-card p-4 flex items-center gap-3"
+            onclick="logoutWealthApp()"
+          >
+
+            <i
+              data-lucide="log-out"
+              class="w-5 h-5 text-red-500"
+            ></i>
+
+            <span class="font-medium text-sm">
+              Log out
+            </span>
+
+          </div>
+
+        `
+
+        : ''
+
+      }
+
+
+      <div class="wa-card p-4 flex items-center gap-3">
+
+        <i
+          data-lucide="credit-card"
+          class="w-5 h-5 text-[#128C7E]"
+        ></i>
+
+        <span class="font-medium text-sm">
+          Credit Cards & Reminders
+        </span>
+
+      </div>
+
+
+      <div class="wa-card p-4 flex items-center gap-3">
+
+        <i
+          data-lucide="file-text"
+          class="w-5 h-5 text-[#128C7E]"
+        ></i>
+
+        <span class="font-medium text-sm">
+          Documents & Links
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <p class="text-xs text-slate-400 text-center mt-8">
+
+      WealthApp v0.7
+      • Editable data
+      • Demo Mode
+      • Clean Charts
+
+    </p>
+
+  `;
+
+
+  lucide.createIcons();
+
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+function logoutWealthApp(){
+
+  if(
+    !confirm(
+      'Log out of this device?'
+    )
+  )
+    return;
+
+
+  localStorage.removeItem(
+    'wa-user'
+  );
+
+
+  authUser = null;
+
+
+  document.getElementById(
+    'mainContent'
+  ).className =
+    'flex-1 overflow-y-auto pb-8 px-4 pt-4';
+
+
+  renderAuth();
+
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function showToast(msg){
+
+  document.getElementById(
+    'toastMsg'
+  ).textContent =
+    msg;
+
+
+  const t =
+    document.getElementById(
+      'toast'
+    );
+
+
+  t.classList.remove(
+    'hidden'
+  );
+
+
+  clearTimeout(
+    window.__toastTimer
+  );
+
+
+  window.__toastTimer =
+    setTimeout(
+      () => {
+
+        t.classList.add(
+          'hidden'
+        );
+
+      },
+      2200
+    );
+
+}
+
+</script>
+
 </body>
 </html>
