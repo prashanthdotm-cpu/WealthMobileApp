@@ -1,0 +1,6 @@
+{
+  "appId": "com.wealthapp.mobile",
+  "appName": "WealthApp",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
