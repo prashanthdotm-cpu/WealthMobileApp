@@ -1,0 +1,59 @@
+name: Build WealthApp Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: WealthApp-Mobile/package.json
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Extract WealthApp project
+        run: |
+          unzip -q WealthApp-Mobile.zip -d build
+          echo "Extracted project:"
+          ls -la build/WealthApp-Mobile
+
+      - name: Install Node dependencies
+        working-directory: build/WealthApp-Mobile
+        run: npm install
+
+      - name: Add Android platform
+        working-directory: build/WealthApp-Mobile
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        working-directory: build/WealthApp-Mobile
+        run: npx cap sync android
+
+      - name: Build Debug APK
+        working-directory: build/WealthApp-Mobile/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: WealthApp-Android-APK
+          path: build/WealthApp-Mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
