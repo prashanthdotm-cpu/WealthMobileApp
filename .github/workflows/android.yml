@@ -42,27 +42,45 @@ jobs:
           cd WealthApp-Mobile
           npm ci
 
-      - name: Remove stale android folder (critical)
+      - name: Check web assets for AR references
+        run: |
+          echo "========== CHECKING www/ FOR AR REFERENCES =========="
+          grep -rni "arcore\|webar\|webxr\|immersive-ar\|navigator\.xr\|aframe\|mindar\|8thwall" WealthApp-Mobile/www/ || echo "No AR keywords found in www/"
+          echo "========== END CHECK =========="
+
+      - name: Destroy and recreate Android platform fresh
         run: |
           cd WealthApp-Mobile
           rm -rf android
-
-      - name: Add Android platform fresh
-        run: |
-          cd WealthApp-Mobile
           npx cap add android
 
-      - name: Strip ARCore from AndroidManifest.xml
+      - name: Strip ARCore from generated Android project
         run: |
-          MANIFEST="WealthApp-Mobile/android/app/src/main/AndroidManifest.xml"
+          cd WealthApp-Mobile/android
+          
+          # 1. Strip from AndroidManifest.xml
+          MANIFEST="app/src/main/AndroidManifest.xml"
           if [ -f "$MANIFEST" ]; then
             sed -i '/android.hardware.camera.ar/d' "$MANIFEST"
             sed -i '/com.google.ar.core/d' "$MANIFEST"
             sed -i '/ARCore/d' "$MANIFEST"
             sed -i '/arcore/d' "$MANIFEST"
-            echo "=== Cleaned AndroidManifest.xml ==="
+            echo "=== AndroidManifest.xml (ARCore stripped) ==="
             cat "$MANIFEST"
           fi
+          
+          # 2. Strip from all build.gradle files
+          find . -name "build.gradle" -exec sed -i '/arcore/d' {} \;
+          find . -name "build.gradle" -exec sed -i '/ARCore/d' {} \;
+          find . -name "build.gradle" -exec sed -i '/com.google.ar/d' {} \;
+          
+          # 3. Strip from gradle.properties
+          if [ -f "gradle.properties" ]; then
+            sed -i '/arcore/d' gradle.properties
+            sed -i '/ARCore/d' gradle.properties
+          fi
+          
+          echo "=== Gradle files cleaned ==="
 
       - name: Sync Capacitor
         run: |
@@ -75,11 +93,12 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Verify APK has no ARCore requirement
+      - name: Verify APK manifest (critical check)
         run: |
           APK="WealthApp-Mobile/android/app/build/outputs/apk/debug/app-debug.apk"
-          echo "=== Checking APK manifest for ARCore references ==="
-          unzip -p "$APK" AndroidManifest.xml | strings | grep -i "arcore\|camera.ar" || echo "✅ No ARCore found in APK"
+          echo "========== APK MANIFEST VERIFICATION =========="
+          unzip -p "$APK" AndroidManifest.xml | strings | grep -i "arcore\|camera.ar\|com.google.ar" || echo "✅ PASS: No ARCore references found in APK manifest"
+          echo "========== END VERIFICATION =========="
           ls -lh "$APK"
 
       - name: Upload APK artifact
